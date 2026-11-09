@@ -488,16 +488,28 @@ const key=()=>S.mode+S.l;
 const cur=()=>{const a=items();const i=Math.min(S.i[key()]||0,a.length-1);return {a,i,it:a[i]}};
 
 /* ---------- speech recognition & recording ---------- */
-let recog=null;
+/* iPhone Safari may never fire onend after a final result, so the page ends a turn itself:
+   on a final result, after 1.4 s without new words, at a hard time limit, or when the learner taps stop. */
+let recog=null,lastAlts=[],silenceT=null,maxT=null,finished=true,curTarget='';
+function finish(alts){if(finished)return;finished=true;clearTimeout(silenceT);clearTimeout(maxT);V.listening=false;
+  const r=recog;recog=null;try{r&&r.abort()}catch(e){}
+  alts=(alts||[]).filter(Boolean);
+  if(alts.length){V.err='';const g=grade(curTarget,alts);V.res={...g,target:curTarget,tips:tipsFor(g)};S.best[curTarget]=Math.max(S.best[curTarget]||0,g.score);saveS()}
+  else if(!V.err)V.err='nospeech';
+  render()}
 function listen(target){if(!SR)return;
-  if(V.listening){recog&&recog.stop();return}
-  stopSay();V.err='';V.res=null;const r=new SR();recog=r;r.lang='zh-CN';r.interimResults=false;r.maxAlternatives=5;r.continuous=false;
-  let got=false;V.listening=true;render();
-  r.onresult=e=>{got=true;const alts=[...e.results[0]].map(a=>a.transcript.trim()).filter(Boolean);const g=grade(target,alts.length?alts:['']);V.res={...g,target,tips:tipsFor(g)};
-    S.best[target]=Math.max(S.best[target]||0,g.score);saveS()};
-  r.onerror=e=>{V.err=e.error==='not-allowed'||e.error==='service-not-allowed'?'perm':e.error==='no-speech'?'nospeech':'other'};
-  r.onend=()=>{V.listening=false;if(!got&&!V.err)V.err='nospeech';render()};
-  try{r.start()}catch(e){V.listening=false;V.err='other';render()}}
+  if(V.listening){try{recog&&recog.stop()}catch(e){}setTimeout(()=>finish(lastAlts),800);return}
+  stopSay();V.err='';V.res=null;finished=false;lastAlts=[];curTarget=target;
+  const r=new SR();recog=r;r.lang='zh-CN';r.interimResults=true;r.maxAlternatives=5;r.continuous=false;
+  V.listening=true;render();
+  r.onresult=e=>{if(finished)return;const all=[...e.results],last=all[all.length-1],pre=all.slice(0,-1).map(x=>x[0].transcript).join('');
+    const alts=[];for(let k=0;k<last.length;k++)alts.push((pre+last[k].transcript).trim());lastAlts=alts;
+    clearTimeout(silenceT);if(last.isFinal)finish(alts);else silenceT=setTimeout(()=>finish(lastAlts),1400)};
+  r.onerror=e=>{if(finished||e.error==='aborted')return;
+    V.err=e.error==='not-allowed'||e.error==='service-not-allowed'?'perm':e.error==='no-speech'?'nospeech':'other';finish(lastAlts)};
+  r.onend=()=>finish(lastAlts);
+  maxT=setTimeout(()=>finish(lastAlts),S.mode==='word'?7000:14000);
+  try{r.start()}catch(e){V.err='other';finish([])}}
 async function record(){if(V.rec){V.rec.stop();return}
   try{const s=await navigator.mediaDevices.getUserMedia({audio:true});const mr=new MediaRecorder(s);const ch=[];
     mr.ondataavailable=e=>e.data.size&&ch.push(e.data);
@@ -514,7 +526,7 @@ function resultHTML(){const r=V.res;if(!r)return '';const cls=r.score>=85?'good'
   <div class="heard">Điện thoại nghe được: <span>${esc(r.heard||'(không rõ)')}</span></div>
   ${r.tips.length?`<ul class="tips">${r.tips.map(t=>`<li>${t}</li>`).join('')}</ul>`:''}`}
 function errHTML(){return V.err==='nosr'?`<div class="note">Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy mở trang bằng <b>Safari</b> trên iPhone/iPad hoặc <b>Chrome</b> trên Android/máy tính.</div>`:
-  V.err==='perm'?`<div class="note">Chưa được dùng micro. Hãy cho phép micro cho trang này trong cài đặt trình duyệt rồi thử lại.</div>`:
+  V.err==='perm'?`<div class="note">Chưa được dùng micro hoặc nhận dạng giọng nói. Trên iPhone/iPad: Cài đặt › Safari › Micrô › Cho phép, và bật Cài đặt › Cài đặt chung › Bàn phím › Bật Đọc chính tả. Sau đó tải lại trang.</div>`:
   V.err==='nospeech'?`<div class="note">Chưa nghe thấy gì. Bấm nút micro, nói rõ ràng ngay sau đó, gần điện thoại hơn.</div>`:
   V.err==='other'?`<div class="note">Nhận dạng giọng nói gặp lỗi mạng hoặc bị gián đoạn. Thử lại sau giây lát.</div>`:''}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
