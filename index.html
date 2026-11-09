@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1D7A62">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Easy Chinese">
+<title>Easy Chinese · Luyện nói</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js"></script>
+<style>
+/* Layout: one column, max 640px; practice card on top, mic button in a fixed bar at the bottom */
+:root{
+  --paper:#EEF3F0; --card:#FFFFFF; --ink:#16231E; --muted:#5B6B65; --line:#D3DDD8;
+  --jade:#1D7A62; --jade-ink:#FFFFFF; --jade-soft:#D5EAE2; --cinnabar:#C23E2C; --cinnabar-soft:#F6DDD8;
+  --gold:#A87C12; --gold-soft:#F3E7C6;
+  --f-hz:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#0E1513; --card:#17211D; --ink:#E4EEE9; --muted:#93A59D; --line:#2A3833;
+  --jade:#46BF9C; --jade-ink:#06231A; --jade-soft:#173A30; --cinnabar:#F0705B; --cinnabar-soft:#3A1E19;
+  --gold:#E2B64B; --gold-soft:#3A3018; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;padding-top:env(safe-area-inset-top,0px)}
+button,select{font:inherit;color:inherit}
+.wrap{max-width:640px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(150px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.logo{width:46px;height:46px;flex:none}
+.top h1{font-size:17px;margin:0;line-height:1.2}
+.top small{color:var(--muted);font-size:12.5px}
+.top .sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:transparent;padding:8px 13px;cursor:pointer;font-size:13.5px}
+.seg button.on{background:var(--jade);color:var(--jade-ink);font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 14px;font-weight:600;cursor:pointer;min-height:44px}
+.btn.pri{background:var(--jade);border-color:var(--jade);color:var(--jade-ink)}
+.btn.sm{min-height:36px;padding:6px 11px;font-size:13.5px}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,.seg button:focus-visible,.mic:focus-visible{outline:2px solid var(--jade);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;margin-top:12px}
+.meta{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.big{font-family:var(--f-hz);font-size:clamp(30px,10vw,52px);font-weight:700;line-height:1.25;margin:6px 0;word-break:keep-all}
+.big.sent{font-size:clamp(21px,6vw,28px);line-height:1.6}
+.py{color:var(--jade);font-size:16px}
+.vi{color:var(--muted);font-size:14px}
+.res{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 4px;margin:4px 0 8px}
+.ch{display:flex;flex-direction:column;align-items:center;min-width:34px;padding:4px 3px;border-radius:9px}
+.ch b{font-family:var(--f-hz);font-size:24px;line-height:1.2}
+.ch i{font-style:normal;font-size:11.5px}
+.ch s{text-decoration:none;font-size:11px;color:var(--cinnabar)}
+.ch.ok{background:var(--jade-soft)} .ch.ok i{color:var(--jade)}
+.ch.tone{background:var(--gold-soft)} .ch.tone i{color:var(--gold)}
+.ch.sound,.ch.miss{background:var(--cinnabar-soft)} .ch.sound i,.ch.miss i{color:var(--cinnabar)}
+.score{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+.score.good{color:var(--jade)} .score.mid{color:var(--gold)} .score.bad{color:var(--cinnabar)}
+.tips{text-align:left;margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.tips li{background:var(--paper);border-radius:10px;padding:8px 10px;font-size:13.5px}
+.tips li .hz{font-family:var(--f-hz);font-size:16px}
+.heard{font-size:13px;color:var(--muted);margin-top:6px}
+.heard span{font-family:var(--f-hz);color:var(--ink)}
+.note{font-size:13px;background:var(--gold-soft);border-radius:10px;padding:10px 12px;margin-top:12px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to bottom,transparent,var(--paper) 18px);padding:18px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.bar .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.mic{width:74px;height:74px;border-radius:50%;border:0;background:var(--cinnabar);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 14px rgba(194,62,44,.35)}
+.mic svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mic.on{animation:pulse 1.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(194,62,44,.55)}100%{box-shadow:0 0 0 18px rgba(194,62,44,0)}}
+@media (prefers-reduced-motion:reduce){.mic.on{animation:none;outline:4px solid var(--gold)}}
+.miclabel{text-align:center;font-size:12px;color:var(--muted);margin-top:4px}
+.line{display:flex;gap:8px;margin:8px 0;align-items:flex-start;text-align:left}
+.line.me{flex-direction:row-reverse}
+.who{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:700;font-size:12.5px;background:var(--gold-soft);color:var(--gold)}
+.line.me .who{background:var(--jade-soft);color:var(--jade)}
+.bub{background:var(--paper);border-radius:12px;padding:7px 11px;max-width:84%}
+.line.me .bub{background:var(--jade-soft)}
+.bub .hz{font-family:var(--f-hz);font-size:17px}
+.bub .vi{font-size:12.5px}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;border-radius:6px;padding:1px 7px;background:var(--jade-soft);color:var(--jade)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<linearGradient id="lgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7CC8F4"/><stop offset="1" stop-color="#2B7BD6"/></linearGradient>
+<linearGradient id="lgBan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FA3EA"/><stop offset="1" stop-color="#1F5FB8"/></linearGradient>
+<symbol id="logo" viewBox="0 0 200 200">
+  <g stroke="#1B2430" stroke-width="3" fill="#C9884A"><rect x="-6" y="-84" width="12" height="168" rx="6" transform="translate(100 90) rotate(-52)"/><rect x="-6" y="-84" width="12" height="168" rx="6" transform="translate(100 90) rotate(52)"/></g>
+  <circle cx="100" cy="90" r="62" fill="url(#lgSky)" stroke="#fff" stroke-width="6"/><circle cx="100" cy="90" r="65.5" fill="none" stroke="#1B2430" stroke-width="3"/>
+  <path d="M60 146 Q104 116 146 146 L146 150 L60 150Z" fill="#D8352A" stroke="#1B2430" stroke-width="3"/>
+  <ellipse cx="106" cy="100" rx="33" ry="31" fill="#F7CFA6" stroke="#1B2430" stroke-width="3"/>
+  <path d="M73 94 L78 81 L83 91 L89 77 L95 89 L102 75 L108 89 L115 76 L120 89 L128 79 L130 93 L139 92 Q140 70 106 66 Q72 66 73 94Z" fill="#1B2430"/>
+  <ellipse cx="106" cy="69" rx="58" ry="12" fill="#F2C230" stroke="#1B2430" stroke-width="3"/>
+  <path d="M78 69 Q80 36 106 36 Q132 36 134 69Z" fill="#F2C230" stroke="#1B2430" stroke-width="3"/>
+  <path d="M79 60 Q106 54 133 60 L134 68 Q106 62 78 68Z" fill="#D8352A" stroke="#1B2430" stroke-width="2"/>
+  <ellipse cx="94" cy="98" rx="5" ry="7" fill="#1B2430"/><ellipse cx="119" cy="98" rx="5" ry="7" fill="#1B2430"/>
+  <circle cx="95.6" cy="95.4" r="1.9" fill="#fff"/><circle cx="120.6" cy="95.4" r="1.9" fill="#fff"/>
+  <path d="M88 110 Q106 133 126 110Z" fill="#fff" stroke="#1B2430" stroke-width="3" stroke-linejoin="round"/><path d="M92 113.5 L122 113.5" stroke="#1B2430" stroke-width="1.5"/>
+  <g stroke="#1B2430" stroke-width="3" fill="#F7CFA6"><rect x="38" y="66" width="13" height="42" rx="6.5" transform="rotate(-15 44 108)"/><rect x="54" y="62" width="13" height="44" rx="6.5" transform="rotate(9 60 106)"/><ellipse cx="55" cy="116" rx="17" ry="14"/></g>
+  <rect x="12" y="140" width="176" height="42" rx="9" fill="url(#lgBan)" stroke="#1B2430" stroke-width="3"/><rect x="17" y="145" width="166" height="32" rx="6" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>
+  <text x="100" y="169" text-anchor="middle" font-family="'Be Vietnam Pro',system-ui,sans-serif" font-weight="700" font-size="21" fill="#fff" stroke="#1B2430" stroke-width="1.2" paint-order="stroke">Easy Chinese</text>
+  <path d="M18 186 Q38 178 58 186 T98 186 T138 186 T178 186" fill="none" stroke="#8A5A2B" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="7 3"/>
+</symbol></defs></svg>
+<div class="wrap">
+  <header class="top"><svg class="logo" viewBox="0 0 200 200" role="img" aria-label="Logo Easy Chinese"><use href="#logo"/></svg><div><h1>Easy Chinese</h1><small>Luyện nói · HSK4 Quyển 1</small></div><span class="sp"></span><div class="seg" id="vsel"></div></header>
+  <div class="row"><div class="seg" id="modes"></div><select id="lsel" aria-label="Chọn bài"></select></div>
+  <main id="main"></main>
+</div>
+<div class="bar"><div class="in" id="bar"></div></div>
+
+<script>
+/* ---------- DATA: Quyển 1, 10 bài. Fields: bài|chữ|pinyin|từ loại|nghĩa Việt|English (sách)|cụm từ|câu ví dụ|dịch câu ---------- */
+const RAW=`1|胃口|wèikǒu|N|khẩu vị, sự thèm ăn|appetite|没胃口 / 胃口好|天气太热，我一点儿胃口也没有。|Trời nóng quá, tôi chẳng thấy muốn ăn chút nào.
+1|家常菜|jiāchángcài||món cơm nhà, món ăn gia đình|homely food||我最喜欢吃妈妈做的家常菜。|Tôi thích nhất món cơm nhà mẹ nấu.
+1|下厨|xià chú||vào bếp, nấu ăn|to cook|亲自下厨|今天我生日，爸爸亲自下厨。|Hôm nay sinh nhật tôi, bố đích thân vào bếp.
+1|拿手菜|náshǒucài||món tủ, món sở trường|(one's) specialty dish||这道鱼是我的拿手菜，你尝尝。|Món cá này là món tủ của tôi, bạn nếm thử đi.
+1|传|chuán|V|gửi, tải lên, truyền|to upload, to send|上传 / 传照片|你把照片传给我吧。|Bạn gửi ảnh cho tôi nhé.
+1|羡慕|xiànmù|V|ngưỡng mộ, ghen tị|to admire, to envy|羡慕别人 / 非常羡慕|我很羡慕你能去中国留学。|Tôi rất ngưỡng mộ bạn được sang Trung Quốc du học.
+1|糟毛豆|zāomáodòu||đậu nành non ngâm rượu|green soybeans in rice wine sauce||糟毛豆是一道上海凉菜。|Đậu nành ngâm rượu là một món nguội Thượng Hải.
+1|毛豆|máodòu|N|đậu nành non (edamame)|green soybeans||夏天喝啤酒，吃毛豆，真舒服。|Mùa hè uống bia, ăn đậu nành non, thật dễ chịu.
+1|西红柿炒蛋|xīhóngshì chǎodàn||trứng xào cà chua|scrambled eggs with tomatoes||西红柿炒蛋又简单又好吃。|Trứng xào cà chua vừa đơn giản vừa ngon.
+1|西红柿|xīhóngshì|N|cà chua|tomato||我去超市买几个西红柿。|Tôi đi siêu thị mua mấy quả cà chua.
+1|炒|chǎo|V|xào|to fry (a dish)|炒菜|你会炒菜吗？|Bạn có biết xào nấu không?
+1|炒三丝|chǎosānsī||món xào ba loại sợi|fried three slices||炒三丝里有青椒、土豆和肉。|Món xào ba sợi có ớt xanh, khoai tây và thịt.
+1|辣|là|A|cay|spicy, hot||我不怕辣，越辣越好。|Tôi không sợ cay, càng cay càng tốt.
+1|水煮鱼|shuǐzhǔyú||cá luộc cay (món Tứ Xuyên)|spicy boiled fish||水煮鱼是一道有名的四川菜。|Cá luộc cay là một món Tứ Xuyên nổi tiếng.
+1|煮|zhǔ|V|luộc, nấu sôi|to boil|煮蛋 / 煮咖啡|早上我常常煮两个鸡蛋。|Buổi sáng tôi thường luộc hai quả trứng.
+1|口福|kǒufú|N|lộc ăn, có phúc được ăn ngon|luck to get something nice to eat|有口福|你来得正好，今天真有口福！|Bạn đến đúng lúc, hôm nay có lộc ăn rồi!
+1|抢|qiǎng|V|giành, tranh, cướp|to grab, to take ... from||大家都在抢最后一块蛋糕。|Mọi người đều tranh miếng bánh cuối cùng.
+1|甜品|tiánpǐn|N|món tráng miệng, đồ ngọt|dessert||吃完饭，我们再点个甜品吧。|Ăn xong, chúng ta gọi thêm món tráng miệng nhé.
+1|绿豆汤|lǜdòutāng||chè đậu xanh|mung bean soup||夏天喝一碗绿豆汤，特别舒服。|Mùa hè uống một bát chè đậu xanh rất dễ chịu.
+1|柠檬茶|níngméngchá||trà chanh|lemon tea||我要一杯冰柠檬茶。|Cho tôi một ly trà chanh đá.
+1|柠檬|níngméng|N|chanh vàng|lemon||在水里放一片柠檬。|Bỏ một lát chanh vào nước.
+1|端|duān|V|bưng (bằng hai tay)|to hold level with both hands|端起杯子|服务员把菜端上来了。|Phục vụ đã bưng món ăn lên.
+1|糟|zāo|A|hỏng rồi, gay rồi|too bad|糟了|糟了！我忘带钥匙了。|Gay rồi! Tôi quên mang chìa khóa.
+2|说曹操，曹操到|shuō Cáo Cāo, Cáo Cāo dào||nhắc Tào Tháo, Tào Tháo đến|to speak of the devil||我们正说你呢，真是说曹操，曹操到！|Đang nói về bạn thì bạn tới, đúng là nhắc Tào Tháo, Tào Tháo đến!
+2|眼前|yǎnqián|N|trước mắt|before one's eyes|远在天边，近在眼前|你找的书就在你眼前。|Cuốn sách bạn tìm ở ngay trước mắt bạn.
+2|呗|bei|Pt|thì… thôi (trợ từ: điều hiển nhiên)|used to show something is self-evident||不想去就别去呗。|Không muốn đi thì đừng đi thôi.
+2|参加|cānjiā|V|tham gia, dự|to take part in, to attend|参加聚会 / 参加婚礼|周末我要参加朋友的婚礼。|Cuối tuần tôi đi dự đám cưới của bạn.
+2|婚礼|hūnlǐ|N|đám cưới, hôn lễ|wedding||他们的婚礼办得很热闹。|Đám cưới của họ tổ chức rất náo nhiệt.
+2|深刻|shēnkè|A|sâu sắc|deep, profound|印象深刻|这次旅行给我留下了深刻的印象。|Chuyến đi này để lại cho tôi ấn tượng sâu sắc.
+2|服装|fúzhuāng|N|trang phục, quần áo|clothing, garment||这家店的服装很有特色。|Quần áo ở cửa hàng này rất đặc sắc.
+2|式|shì|N|kiểu, kiểu dáng|style|中式 / 西式 / 男式 / 女式|我更喜欢中式的早饭。|Tôi thích bữa sáng kiểu Trung hơn.
+2|婚纱|hūnshā|N|váy cưới|wedding dress||她穿上婚纱，漂亮极了。|Cô ấy mặc váy cưới đẹp vô cùng.
+2|西装|xīzhuāng|N|com-lê, vest|(men's) suit|男士西装|面试的时候最好穿西装。|Khi phỏng vấn tốt nhất nên mặc vest.
+2|中西合璧|zhōngxī-hébì||kết hợp Đông Tây|a combination of Chinese and Western elements||这座房子的设计中西合璧。|Thiết kế ngôi nhà này kết hợp Đông Tây.
+2|合并|hébìng|V|gộp, sáp nhập|to merge, to combine||两个班合并成了一个班。|Hai lớp được gộp thành một lớp.
+2|平时|píngshí|N|thường ngày, bình thường|at ordinary times||我平时七点起床。|Bình thường tôi dậy lúc bảy giờ.
+2|成语|chéngyǔ|N|thành ngữ|idiom, set phrase||学汉语一定要学一些成语。|Học tiếng Trung nhất định phải học một số thành ngữ.
+2|俗语|súyǔ|N|tục ngữ|(common) saying, folk adage||“说曹操，曹操到”是一句俗语。|"Nhắc Tào Tháo, Tào Tháo đến" là một câu tục ngữ.
+2|特殊|tèshū|A|đặc biệt, đặc thù|special|比较特殊|这是一个特殊的日子。|Đây là một ngày đặc biệt.
+2|执子之手，与子偕老|zhí zǐ zhī shǒu, yǔ zǐ xiélǎo||nắm tay người, cùng người đến già|to hold my lover's hand and grow old together||婚礼上，新郎说：“执子之手，与子偕老。”|Trong đám cưới, chú rể nói: "Nắm tay em, cùng em đến già."
+2|广泛|guǎngfàn|A|rộng rãi, phổ biến|wide, extensive|广泛使用|这个词在口语里用得很广泛。|Từ này được dùng rất rộng rãi trong khẩu ngữ.
+3|健身|jiànshēn|V|tập thể hình, tập gym|to work out||我每周去健身房健身三次。|Mỗi tuần tôi đến phòng gym tập ba lần.
+3|嘛|ma|Pt|thì (trợ từ ngắt câu, nêu chủ đề)|pause before introducing the theme||游泳嘛，我还没学会呢。|Bơi thì tôi vẫn chưa biết đâu.
+3|羽毛球|yǔmáoqiú|N|cầu lông|badminton|打羽毛球|下班以后我们去打羽毛球吧。|Tan làm chúng ta đi đánh cầu lông nhé.
+3|马拉松|mǎlāsōng|N|marathon|marathon||他每年都参加马拉松比赛。|Năm nào anh ấy cũng tham gia thi marathon.
+3|体育馆|tǐyùguǎn|N|nhà thi đấu, sân vận động|gymnasium, stadium||学校的体育馆晚上也开门。|Nhà thi đấu của trường buổi tối cũng mở cửa.
+3|约|yuē|V|hẹn, rủ|to make an appointment|约好时间 / 约朋友|我约了朋友周六一起爬山。|Tôi đã hẹn bạn thứ bảy cùng leo núi.
+3|运动鞋|yùndòngxié||giày thể thao|sneakers||跑步要穿舒服的运动鞋。|Chạy bộ phải đi giày thể thao thoải mái.
+3|高手|gāoshǒu|N|cao thủ|ace, master||他是打乒乓球的高手。|Anh ấy là cao thủ bóng bàn.
+3|业余|yèyú|A|nghiệp dư; ngoài giờ|amateur|业余运动员 / 业余时间|业余时间你喜欢做什么？|Lúc rảnh bạn thích làm gì?
+3|肌肉|jīròu|N|cơ bắp|muscle||运动以后，我的肌肉很疼。|Sau khi tập, cơ bắp tôi rất đau.
+3|热身|rè shēn|VO|khởi động|to warm up||跑步以前要先热身。|Trước khi chạy phải khởi động.
+3|查|chá|V|tra, tìm|to look up|查生词 / 查一下|这个字我不认识，我查一下词典。|Chữ này tôi không biết, để tôi tra từ điển.
+3|白|bái|Adv|uổng công, phí|in vain|白跑了 / 白吃了|商店关门了，我白跑了一趟。|Cửa hàng đóng cửa, tôi đi uổng một chuyến.
+3|美食|měishí|N|món ngon, ẩm thực|delicacy, gourmet food||越南有很多美食。|Việt Nam có rất nhiều món ngon.
+3|健康|jiànkāng|A|khỏe mạnh|healthy||多运动对身体健康有好处。|Vận động nhiều có lợi cho sức khỏe.
+3|体重|tǐzhòng|N|cân nặng|(body) weight||这个月我的体重减了两公斤。|Tháng này tôi giảm được hai cân.
+3|共同|gòngtóng|A&Adv|chung; cùng nhau|common; together|共同爱好 / 共同努力|我们有很多共同爱好。|Chúng tôi có nhiều sở thích chung.
+4|自助游|zìzhùyóu|V|du lịch tự túc|DIY tour||比起跟团，我更喜欢自助游。|So với đi theo tour, tôi thích du lịch tự túc hơn.
+4|自助|zìzhù|V|tự phục vụ, tự lo|self-service|自助餐|这家酒店的自助餐很不错。|Buffet của khách sạn này rất ngon.
+4|假期|jiàqī|N|kỳ nghỉ|vacation, holiday||这个假期你打算去哪儿？|Kỳ nghỉ này bạn định đi đâu?
+4|欣赏|xīnshǎng|V|thưởng thức, ngắm; đánh giá cao|to appreciate, to enjoy||我们一边喝茶，一边欣赏风景。|Chúng tôi vừa uống trà vừa ngắm cảnh.
+4|功课|gōngkè|N|bài tập; sự chuẩn bị|homework, preparation|做功课|出发以前要做好功课。|Trước khi xuất phát phải chuẩn bị kỹ.
+4|攻略|gōnglüè|N|cẩm nang, bí kíp|strategy, tips|查攻略|我在网上查了很多旅游攻略。|Tôi tra rất nhiều cẩm nang du lịch trên mạng.
+4|方式|fāngshì|N|cách, phương thức|way, manner|运动方式|每个人的学习方式不一样。|Cách học của mỗi người khác nhau.
+4|读万卷书，行万里路|dú wàn juàn shū, xíng wàn lǐ lù||đọc vạn quyển sách, đi vạn dặm đường|read a lot and travel a lot||读万卷书，行万里路，旅行也是学习。|Đọc vạn quyển sách, đi vạn dặm đường, du lịch cũng là học.
+4|见闻|jiànwén|N|điều mắt thấy tai nghe|knowledge, what one sees and hears||他把旅行见闻写成了一本书。|Anh ấy viết những điều thấy được khi du lịch thành một cuốn sách.
+4|挑选|tiāoxuǎn|V|chọn lựa|to select, to choose||你帮我挑选一件礼物吧。|Bạn giúp tôi chọn một món quà nhé.
+4|西瓜|xīguā|N|dưa hấu|watermelon||夏天吃西瓜最舒服。|Mùa hè ăn dưa hấu là sướng nhất.
+4|支付|zhīfù|V|thanh toán, chi trả|to pay (money)||在中国，很多人用手机支付。|Ở Trung Quốc, nhiều người thanh toán bằng điện thoại.
+4|古城墙|gǔchéngqiáng||tường thành cổ|ancient city wall||我们在西安的古城墙上骑自行车。|Chúng tôi đạp xe trên tường thành cổ Tây An.
+4|兵马俑|bīngmǎyǒng|N|tượng binh mã (đất nung)|terracotta warriors and horses||去西安一定要看兵马俑。|Đến Tây An nhất định phải xem tượng binh mã.
+5|响声|xiǎngshēng|N|tiếng động, tiếng kêu|sound|有响声|门外好像有响声。|Ngoài cửa hình như có tiếng động.
+5|静音|jìng yīn||chế độ im lặng, tắt tiếng|(of TV, phones) mute|静音状态|上课的时候请把手机调成静音。|Trong giờ học hãy để điện thoại ở chế độ im lặng.
+5|状态|zhuàngtài|N|trạng thái, tình trạng|status, condition|静音状态|他今天的状态很好。|Hôm nay phong độ của anh ấy rất tốt.
+5|落|là|V|bỏ quên, để quên|to leave behind|落下|我把雨伞落在出租车上了。|Tôi để quên ô trên taxi.
+5|记得|jìde|V|nhớ|to remember||你还记得我们第一次见面吗？|Bạn còn nhớ lần đầu chúng ta gặp nhau không?
+5|搁|gē|V|đặt, để|to put, to place|搁在这儿|你把箱子搁在门口吧。|Bạn để vali ở cửa nhé.
+5|可惜|kěxī|A|đáng tiếc|it's a pity|很可惜|你没来，真可惜。|Bạn không đến, thật đáng tiếc.
+5|细心|xìxīn|A|cẩn thận, tỉ mỉ|careful||她做事很细心。|Cô ấy làm việc rất cẩn thận.
+5|随手|suíshǒu|Adv|tiện tay|(do sth) conveniently, randomly|随手一放|出门的时候请随手关灯。|Khi ra ngoài nhớ tiện tay tắt đèn.
+5|语气|yǔqì|N|ngữ khí, giọng điệu|mood, tone||他说话的语气有点儿不高兴。|Giọng điệu của anh ấy hơi không vui.
+5|秘密|mìmì|N&A|bí mật|secret||这是我们俩的秘密。|Đây là bí mật của hai chúng ta.
+5|藏|cáng|V|giấu, cất|to hide|藏起来|妈妈把礼物藏起来了。|Mẹ đã giấu món quà đi rồi.
+5|座位|zuòwèi|N|chỗ ngồi|seat||这个座位有人吗？|Chỗ này có ai ngồi không?
+5|吓|xià|V|dọa, làm giật mình|to scare, to startle|吓了一跳|你突然进来，吓了我一跳。|Bạn đột nhiên đi vào làm tôi giật cả mình.
+5|虚惊一场|xūjīng-yìchǎng||một phen hú vía, báo động giả|false alarm||手机找到了，原来是虚惊一场。|Tìm thấy điện thoại rồi, hóa ra chỉ là một phen hú vía.
+6|内行|nèiháng|N&A|người trong nghề; rành nghề|old hand, expert; knowledgeable||买电脑这件事，他是内行。|Chuyện mua máy tính thì anh ấy rành.
+6|专家|zhuānjiā|N|chuyên gia|expert||这位医生是心脏病专家。|Vị bác sĩ này là chuyên gia tim mạch.
+6|经验|jīngyàn|N|kinh nghiệm|experience|有经验 / 经验丰富|她有十年的工作经验。|Cô ấy có mười năm kinh nghiệm làm việc.
+6|体现|tǐxiàn|V|thể hiện|to embody, to reflect|体现出来|礼物不在贵，而在体现心意。|Quà không cần đắt, quan trọng là thể hiện tấm lòng.
+6|真诚|zhēnchéng|A|chân thành|sincere|很真诚 / 真诚地祝福|谢谢你真诚的帮助。|Cảm ơn sự giúp đỡ chân thành của bạn.
+6|行动|xíngdòng|N&V|hành động|action; to take action||说不如做，马上行动吧！|Nói không bằng làm, hành động ngay thôi!
+6|性格|xìnggé|N|tính cách|character, personality||他性格很开朗，朋友很多。|Anh ấy tính cách cởi mở, có nhiều bạn.
+6|投其所好|tóuqísuǒhào||chiều theo sở thích người khác|to cater to another person's preferences||送礼物要投其所好。|Tặng quà phải hợp sở thích người nhận.
+6|思考|sīkǎo|V|suy nghĩ, suy ngẫm|to think, to reflect on|思考问题|这个问题让我思考了很久。|Vấn đề này khiến tôi suy nghĩ rất lâu.
+6|笔记|bǐjì|N|ghi chép|notes|记笔记 / 学习笔记|上课的时候要认真记笔记。|Trong giờ học phải chăm chỉ ghi chép.
+6|难题|nántí|N|vấn đề khó, bài toán khó|difficult problem|一个难题|这真是一个难题。|Đây thật là một vấn đề khó.
+6|人类|rénlèi|N|nhân loại, loài người|mankind||音乐是人类共同的语言。|Âm nhạc là ngôn ngữ chung của nhân loại.
+6|理想|lǐxiǎng|A&N|lý tưởng|perfect; ideal|理想的办法 / 有理想|这是一个理想的工作。|Đây là một công việc lý tưởng.
+6|忍不住|rěnbuzhù||không nhịn được|cannot help doing something||听了他的话，大家都忍不住笑了。|Nghe anh ấy nói, mọi người đều không nhịn được cười.
+6|交流|jiāoliú|V|giao lưu, trao đổi|to exchange, to communicate||我常常跟中国朋友用汉语交流。|Tôi thường trao đổi với bạn Trung Quốc bằng tiếng Trung.
+6|信息|xìnxī|N|thông tin, tin nhắn|information, message|个人信息 / 交流信息|收到信息请回复我。|Nhận được tin nhắn thì trả lời tôi nhé.
+7|年轻|niánqīng|A|trẻ|young|年轻人|你看起来比实际年龄年轻。|Bạn trông trẻ hơn tuổi thật.
+7|传染|chuánrǎn|V|lây, lây nhiễm|to infect, to be contagious|传染病|感冒会传染，你多注意。|Cảm sẽ lây đấy, bạn chú ý nhé.
+7|演讲|yǎnjiǎng|V|diễn thuyết, thuyết trình|to make a speech||明天我要用汉语演讲。|Ngày mai tôi phải diễn thuyết bằng tiếng Trung.
+7|题目|tímù|N|đề bài, chủ đề|topic, title|演讲题目|这次作文的题目是“我的家乡”。|Đề bài văn lần này là "Quê hương tôi".
+7|隐藏|yǐncáng|V|ẩn giấu, che giấu|to conceal, to hide|隐藏在草丛中|他把真实的想法隐藏在心里。|Anh ấy giấu suy nghĩ thật trong lòng.
+7|力量|lìliàng|N|sức mạnh|strength, power||微笑有很大的力量。|Nụ cười có sức mạnh rất lớn.
+7|超过|chāoguò|V|vượt quá|to exceed, to surpass|超过二十元|今天的气温超过了三十五度。|Nhiệt độ hôm nay vượt quá 35 độ.
+7|相当于|xiāngdāngyú||tương đương với|to be equivalent to||一英镑相当于多少人民币？|Một bảng Anh tương đương bao nhiêu nhân dân tệ?
+7|巧克力|qiǎokèlì|N|sô-cô-la|chocolate||情人节他送了我一盒巧克力。|Valentine anh ấy tặng tôi một hộp sô-cô-la.
+7|英镑|yīngbàng|N|bảng Anh|pound sterling||这本书卖二十英镑。|Cuốn sách này bán 20 bảng Anh.
+7|长寿|chángshòu|A|sống lâu, trường thọ|longevous||爱笑的人更长寿。|Người hay cười sống lâu hơn.
+7|笑一笑，十年少|xiào yi xiào, shí nián shào||cười một cái, trẻ ra mười tuổi|smiles make one young||别生气了，笑一笑，十年少嘛！|Đừng giận nữa, cười một cái trẻ ra mười tuổi mà!
+7|愁眉苦脸|chóuméi-kǔliǎn||mặt mày ủ rũ|to pull a long face||你为什么整天愁眉苦脸的？|Sao cả ngày bạn mặt mày ủ rũ thế?
+7|倾城|qīngchéng|V|nghiêng thành (rất đẹp)|(of beauty) to cause the fall of a city||她的微笑真是倾城。|Nụ cười của cô ấy thật nghiêng thành.
+7|典故|diǎngù|N|điển tích, điển cố|literary quotation||这个成语有一个有意思的典故。|Thành ngữ này có một điển tích thú vị.
+7|消失|xiāoshī|V|biến mất|to vanish, to disappear||他的笑容一下子消失了。|Nụ cười của anh ấy biến mất ngay lập tức.
+8|高级|gāojí|A|cao cấp|advanced, high-class||这是一家高级饭店。|Đây là một nhà hàng cao cấp.
+8|级|jí|N|cấp, trình độ|level, grade|低级 / 中级 / 上级 / 下级|我在学中级汉语。|Tôi đang học tiếng Trung trung cấp.
+8|面试|miànshì|V|phỏng vấn|to interview|通过面试|我通过了公司的面试。|Tôi đã qua vòng phỏng vấn của công ty.
+8|老板|lǎobǎn|N|ông chủ, sếp|boss, employer||我们老板人很好。|Sếp chúng tôi rất tốt.
+8|老板娘|lǎobǎnniáng|N|bà chủ|proprietress, boss's wife||这家店的老板娘很热情。|Bà chủ quán này rất nhiệt tình.
+8|炒饭|chǎofàn||cơm rang|fried rice||给我来一份鸡蛋炒饭。|Cho tôi một phần cơm rang trứng.
+8|咕咾肉|gūlǎoròu||thịt heo chua ngọt|sweet and sour pork||咕咾肉酸酸甜甜的，很好吃。|Thịt heo chua ngọt có vị chua chua ngọt ngọt, rất ngon.
+8|叉烧肉|chāshāoròu||thịt xá xíu|Chinese BBQ pork||广东的叉烧肉很有名。|Xá xíu Quảng Đông rất nổi tiếng.
+8|素菜|sùcài|N|món rau, món chay|vegetable dish||我们点两个肉菜，两个素菜吧。|Chúng ta gọi hai món thịt, hai món rau nhé.
+8|素鸭|sùyā||vịt chay|vegetarian duck||这道素鸭看起来真像鸭肉。|Món vịt chay này trông giống thịt vịt thật.
+8|鸭|yā|N|vịt|duck|鸭子|北京烤鸭是有名的北京菜。|Vịt quay Bắc Kinh là món Bắc Kinh nổi tiếng.
+8|点菜|diǎn cài||gọi món|to order dishes|点爱吃的菜|服务员，我们要点菜。|Phục vụ ơi, chúng tôi muốn gọi món.
+8|讲究|jiǎngjiu|N&V&A|cầu kỳ, chú trọng; điều cần chú ý|to be particular about; exquisite|有讲究 / 讲究卫生|中国人吃饭很讲究上菜的顺序。|Người Trung Quốc ăn uống rất chú trọng thứ tự lên món.
+8|凉菜|liángcài|N|món nguội|cold dish||先上凉菜，后上热菜。|Lên món nguội trước, món nóng sau.
+8|凉|liáng|A|mát, lạnh, nguội|cold|凉水 / 天凉了|天凉了，多穿点儿衣服。|Trời trở lạnh rồi, mặc thêm áo nhé.
+8|主食|zhǔshí|N|món chính (cơm, mì…)|staple food||南方人的主食是米饭。|Món chính của người miền Nam là cơm.
+8|担心|dān xīn|VO|lo lắng|to worry||别担心，我能找到路。|Đừng lo, tôi tìm được đường.
+8|精致|jīngzhì|A|tinh tế, tinh xảo|delicate, fine, exquisite||这家饭店的菜做得很精致。|Món ăn nhà hàng này làm rất tinh tế.
+9|陌生|mòshēng|A|lạ, xa lạ|unfamiliar, strange|陌生人 / 感到陌生|不要随便给陌生人开门。|Đừng tùy tiện mở cửa cho người lạ.
+9|怪不得|guàibude|Adv|thảo nào|no wonder||他是北京人，怪不得普通话说得这么好。|Anh ấy là người Bắc Kinh, thảo nào nói tiếng phổ thông hay thế.
+9|乖乖女|guāiguāinǚ||cô gái ngoan|good girl, obedient girl||她从小就是个乖乖女。|Từ nhỏ cô ấy đã là cô gái ngoan.
+9|窗|chuāng|N|cửa sổ|window|窗外|我喜欢坐在窗边看书。|Tôi thích ngồi cạnh cửa sổ đọc sách.
+9|友好|yǒuhǎo|A|thân thiện|friendly||这里的人对外国人很友好。|Người ở đây rất thân thiện với người nước ngoài.
+9|设计|shèjì|N&V|thiết kế|design; to design|美术设计 / 设计师|她是一名服装设计师。|Cô ấy là một nhà thiết kế thời trang.
+9|话题|huàtí|N|chủ đề (câu chuyện)|topic|共同话题 / 换个话题|我们换个话题吧。|Chúng ta đổi chủ đề đi.
+9|收获|shōuhuò|N|thu hoạch, điều thu được|harvest, gain|学习收获|这次旅行你有什么收获？|Chuyến đi này bạn thu được gì?
+9|留|liú|V|để lại|to leave (a message)|留电话号|请给我留个电话号码。|Hãy để lại số điện thoại cho tôi.
+9|京剧|jīngjù|N|kinh kịch|Peking opera||我第一次看京剧，觉得很有意思。|Lần đầu xem kinh kịch, tôi thấy rất thú vị.
+9|难得|nándé|A|hiếm có|rare|机会难得 / 难得遇到|这么好的机会很难得。|Cơ hội tốt như vậy rất hiếm có.
+9|胡子|húzi|N|râu|mustache, beard||爷爷的胡子全白了。|Râu ông nội bạc trắng hết rồi.
+9|擅长|shàncháng|V|giỏi về, sở trường|to be good at|擅长交友|她擅长跟陌生人聊天。|Cô ấy giỏi trò chuyện với người lạ.
+9|流利|liúlì|A|lưu loát, trôi chảy|fluent|汉语说得流利|他的汉语说得非常流利。|Anh ấy nói tiếng Trung rất lưu loát.
+9|纠正|jiūzhèng|V|sửa (lỗi)|to correct, to rectify|纠正错误 / 纠正发音|老师常常纠正我的发音。|Thầy giáo thường sửa phát âm cho tôi.
+9|的确|díquè|Adv|quả thật, đúng là|indeed|的确是这样|这家店的菜的确很好吃。|Món ăn quán này quả thật rất ngon.
+10|论文|lùnwén|N|luận văn, bài báo khoa học|paper, thesis||我这个月一直在写论文。|Cả tháng nay tôi đều viết luận văn.
+10|感觉|gǎnjué|V|cảm thấy|to feel|感觉冷了|我感觉有点儿累。|Tôi cảm thấy hơi mệt.
+10|难怪|nánguài|Adv|thảo nào|no wonder||下雨了，难怪这么冷。|Mưa rồi, thảo nào lạnh thế.
+10|老成|lǎochéng|A|chín chắn, già dặn|experienced, mature, steady||他才二十岁，说话却很老成。|Cậu ấy mới 20 tuổi mà nói chuyện rất chín chắn.
+10|心态|xīntài|N|tâm thái, tâm lý|state of mind, mentality|心态好 / 心态年轻|心态好的人不容易老。|Người có tâm thái tốt khó già.
+10|至少|zhìshǎo|Adv|ít nhất|at least|至少三千人 / 至少半个小时|每天至少运动半个小时。|Mỗi ngày vận động ít nhất nửa tiếng.
+10|退休|tuì xiū|V|nghỉ hưu|to retire|去年退休|我爸爸去年退休了。|Bố tôi nghỉ hưu năm ngoái.
+10|条件|tiáojiàn|N|điều kiện|condition|生活条件 / 条件很好|这里的生活条件越来越好了。|Điều kiện sống ở đây ngày càng tốt.
+10|环境|huánjìng|N|môi trường|environment|工作环境|这家公司的工作环境很好。|Môi trường làm việc của công ty này rất tốt.
+10|注重|zhùzhòng|V|chú trọng|to lay emphasis on||现在的人越来越注重健康。|Người bây giờ ngày càng chú trọng sức khỏe.
+10|质量|zhìliàng|N|chất lượng|quality|质量好|这件衣服质量很好。|Bộ quần áo này chất lượng rất tốt.
+10|安排|ānpái|V|sắp xếp; kế hoạch|to arrange|安排生活 / 安排工作|周末你有什么安排？|Cuối tuần bạn có kế hoạch gì?
+10|丰富|fēngfù|A|phong phú|abundant, rich|丰富的经验 / 丰富的业余生活|退休以后，她的生活很丰富。|Sau khi nghỉ hưu, cuộc sống của bà rất phong phú.
+10|继续|jìxù|V|tiếp tục|to go on, to continue|继续学习 / 继续工作|毕业以后我想继续学习汉语。|Sau khi tốt nghiệp tôi muốn tiếp tục học tiếng Trung.
+10|老龄化|lǎolínghuà||già hóa (dân số)|aging||很多国家都有人口老龄化的问题。|Nhiều nước có vấn đề già hóa dân số.
+10|增长|zēngzhǎng|V|tăng trưởng, tăng|to grow, to increase|人口增长|今年公司的收入增长了百分之十。|Năm nay thu nhập công ty tăng 10%.
+10|表示|biǎoshì|V|bày tỏ, biểu thị|to show, to express|表示同意|他点点头，表示同意。|Anh ấy gật đầu, tỏ ý đồng ý.
+10|古董|gǔdǒng|N|đồ cổ|antique||这个花瓶是一件古董。|Chiếc bình hoa này là một món đồ cổ.
+10|想法|xiǎngfǎ|N|ý nghĩ, ý tưởng|idea, thought||你的想法很好。|Ý tưởng của bạn rất hay.
+10|时尚|shíshàng|A|thời thượng, sành điệu|fashionable||她穿得很时尚。|Cô ấy ăn mặc rất thời thượng.
+10|明显|míngxiǎn|A|rõ ràng, rõ rệt|obvious, evident|十分明显|他的汉语水平有了明显的提高。|Trình độ tiếng Trung của anh ấy tiến bộ rõ rệt.
+10|预测|yùcè|V|dự đoán|to predict||没有人能预测未来。|Không ai có thể dự đoán tương lai.
+10|分明|fēnmíng|Adv|rõ ràng là|obviously||他分明知道，却说不知道。|Rõ ràng anh ta biết mà lại nói không biết.`;
+
+const WORDS=RAW.split('\n').map(l=>{const f=l.split('|');return{l:+f[0],hz:f[1],py:f[2],pos:f[3],vi:f[4],en:f[5],col:f[6],ex:f[7],exvi:f[8]}});
+
+const LESSONS=[null,
+ ['来几个家常菜吧','Gọi vài món cơm nhà nhé'],['说曹操，曹操到','Nhắc Tào Tháo, Tào Tháo đến'],['我们爱运动','Chúng tôi thích thể thao'],
+ ['自助游','Du lịch tự túc'],['手机怎么了','Điện thoại sao thế?'],['爱的礼物','Món quà tình yêu'],['微笑的力量','Sức mạnh của nụ cười'],
+ ['先凉菜后热菜','Món nguội trước, món nóng sau'],['跟陌生人说话','Nói chuyện với người lạ'],['你这样算老吗','Như bạn thế này là già sao?']];
+
+const GRAM=[
+{l:1,t:'宾语前置',vt:'Đưa tân ngữ lên đầu câu',
+ exp:['Trong khẩu ngữ, tân ngữ của động từ có thể đặt lên đầu câu để làm chủ đề, nhấn mạnh "cái được nói tới".','Khi đã rõ ai làm, chủ ngữ có thể lược bỏ.'],
+ str:['Tân ngữ + Chủ ngữ + Động từ + …','Tân ngữ + Động từ + … (lược chủ ngữ)'],
+ ex:[['喝的我来带！','Đồ uống để tôi mang!'],['米饭我忘了煮了。','Cơm thì tôi quên nấu mất rồi.'],['妈妈的话你一定要听。','Lời mẹ thì con nhất định phải nghe.'],['那本书看完了。','Cuốn sách đó đọc xong rồi.'],['作业都做了吗？','Bài tập làm hết chưa?']],
+ q:[{k:'or',p:'Sắp xếp thành câu có tân ngữ đứng đầu',t:['老师说的话','我们','都','听明白了'],a:'老师说的话我们都听明白了'},
+    {k:'mc',p:'Đưa tân ngữ lên đầu: 我带了飞机票和护照。',o:['飞机票和护照我都带了。','我带了都飞机票和护照。','带了我飞机票和护照。'],a:0},
+    {k:'mc',p:'Câu nào đúng?',o:['作业你做完了吗？','你作业完做了吗？','做完你作业了吗？'],a:0},
+    {k:'or',p:'Sắp xếp thành câu',t:['那本书','杰克','读完了'],a:'那本书杰克读完了'},
+    {k:'or',p:'Sắp xếp thành câu',t:['昨晚的足球赛','他爸爸','看了'],a:'昨晚的足球赛他爸爸看了'}]},
+{l:2,t:'书面语与口语',vt:'Văn viết và khẩu ngữ',
+ exp:['Tiếng Trung có khác biệt giữa văn viết (书面语) và khẩu ngữ (口语). Thành ngữ và tục ngữ dùng được ở cả hai, nhưng thành ngữ thiên về văn viết.','Khi giao tiếp hằng ngày, hãy chọn cách nói khẩu ngữ cho tự nhiên.'],
+ str:['Văn viết (A) ↔ Khẩu ngữ (B)'],
+ ex:[['此话怎讲？ → 这话是什么意思？','Câu này nghĩa là sao?'],['执子之手，与子偕老。 → 跟你结婚，就要一起到老。','Cưới em rồi thì sẽ cùng em đến già.'],['说曹操，曹操到。 → 说到他，他就来了。','Vừa nhắc tới là người đó xuất hiện.'],['请出示您的护照。 → 请给我看看你的护照。','Cho tôi xem hộ chiếu của bạn.']],
+ q:[{k:'mc',p:'Cách nói khẩu ngữ của 此话怎讲？',o:['这话是什么意思？','此话何意？','此话请讲。'],a:0},
+    {k:'mc',p:'Cách nói khẩu ngữ của 请出示您的护照。',o:['请给我看看你的护照。','请您出示护照。','护照出示。'],a:0},
+    {k:'mc',p:'Câu nào mang phong cách văn viết?',o:['人可一日无食，但不可一日无书。','我今天不想吃饭。','你在看什么书？'],a:0},
+    {k:'mc',p:'我们正说他，他就来了。= ?',o:['说曹操，曹操到','中西合璧','读万卷书，行万里路'],a:0},
+    {k:'mc',p:'好就是好，不好就是不好，说话不要____。',o:['口是心非','中西合璧','笑一笑，十年少'],a:0}]},
+{l:3,t:'补语小结（一）',vt:'Bổ ngữ kết quả, xu hướng, khả năng',
+ exp:['Bổ ngữ kết quả: động từ + kết quả của hành động (学会, 查到, 听明白, 吃完).','Bổ ngữ xu hướng: động từ + 来/去/上/下/进/出/回/过/起 (买来, 跑进, 拿出来, 看上去).','Bổ ngữ khả năng: động từ + 得/不 + bổ ngữ, nói có thể hay không thể (跑不动, 打不好, 拿不上去, 吃不完).'],
+ str:['V + 结果补语','V + 趋向补语','V + 得/不 + 补语'],
+ ex:[['游泳嘛，我还没学会呢。','Bơi thì tôi vẫn chưa biết đâu.'],['我在网上查到一家好吃的店。','Tôi tìm được trên mạng một quán ngon.'],['我周末买来了跑步的运动鞋。','Cuối tuần tôi đã mua giày chạy về.'],['这双鞋看上去还很新。','Đôi giày này trông vẫn còn mới.'],['我可跑不动了。','Tôi chạy không nổi nữa rồi.'],['行李太重了，我拿不上去。','Hành lý nặng quá, tôi không nhấc lên được.']],
+ q:[{k:'mc',p:'小王去买电影票，他买____了两张。',o:['到','动','进'],a:0},
+    {k:'mc',p:'菜太多了，我吃不____。',o:['完','会','来'],a:0},
+    {k:'mc',p:'我太累了，跑不____了。',o:['动','进','来'],a:0},
+    {k:'or',p:'Sắp xếp thành câu',t:['哥哥','从包里','拿出来','一百块钱'],a:'哥哥从包里拿出来一百块钱'},
+    {k:'mc',p:'老师说的话，我都听____了。',o:['明白','上去','不动'],a:0}]},
+{l:4,t:'补语小结（二）',vt:'Bổ ngữ tình thái và bổ ngữ số lượng',
+ exp:['Bổ ngữ tình thái: đứng sau động từ (đôi khi tính từ) và 得, dùng để miêu tả hay đánh giá hành động: 他汉语说得很流利.','Có tân ngữ thì lặp động từ: 他汉字写得很漂亮 / 他写汉字写得很漂亮.','Bổ ngữ số lượng gồm ba loại: động lượng (看一次, 走一回), thời lượng (走了二十分钟), số lượng so sánh (比昨天低十度).'],
+ str:['V + 得 + Tính từ (miêu tả/đánh giá)','V + 一次/一遍/一回','V + thời gian','A 比 B + Tính từ + số lượng'],
+ ex:[['他书读得多，世界各地也跑得多。','Anh ấy đọc sách nhiều, đi khắp nơi cũng nhiều.'],['你已经想得很美了。','Bạn đã nghĩ rất đẹp rồi đấy.'],['我见过赵亮爸爸一次。','Tôi đã gặp bố Triệu Lượng một lần.'],['我从学校到宿舍走了二十分钟。','Tôi đi từ trường về ký túc xá mất hai mươi phút.'],['今天的气温比昨天低十度。','Nhiệt độ hôm nay thấp hơn hôm qua mười độ.']],
+ q:[{k:'or',p:'Sắp xếp thành câu',t:['他','汉字','写得','很漂亮'],a:'他汉字写得很漂亮'},
+    {k:'mc',p:'这本书三年前读了一遍，今年又读了一遍。→ 这本书我读了____。',o:['两遍','两点','两个'],a:0},
+    {k:'mc',p:'我身高165厘米，他176厘米。→ 他比我高____。',o:['十一厘米','很十一厘米','得十一厘米'],a:0},
+    {k:'mc',p:'小王唱歌唱____很好听。',o:['得','的','地'],a:0},
+    {k:'or',p:'Sắp xếp thành câu',t:['我','见过','他爸爸','一次'],a:'我见过他爸爸一次'}]},
+{l:5,t:'“把”字句、“被”字句和宾语前置句',vt:'Câu chữ 把, câu bị động 被 và câu đảo tân ngữ',
+ exp:['把: chủ thể tác động lên một đối tượng xác định làm nó thay đổi. Sau động từ phải có thành phần khác (bổ ngữ, 了, 在/到/给…).','被: thường dùng cho việc không như ý. Trong khẩu ngữ có thể thay bằng 叫 hoặc 让, nhưng sau 叫/让 bắt buộc có người thực hiện.','Ba cách nói này nhiều khi đổi cho nhau được; chọn cách nào tùy ngữ cảnh.'],
+ str:['S + 把 + O + V + 补语/了/在…','O + 被 + (người) + V + …','O + 叫/让 + người + (给) + V + …'],
+ ex:[['请把课本打开。','Hãy mở sách ra.'],['我们把房间打扫得干干净净。','Chúng tôi dọn phòng sạch sẽ tinh tươm.'],['你把花儿放在花瓶里吧。','Bạn cắm hoa vào bình đi.'],['碗被我打破了。','Cái bát bị tôi làm vỡ rồi.'],['碗叫我给打破了。','Cái bát bị tôi làm vỡ rồi (khẩu ngữ).'],['我把手机忘在家里了。= 手机忘在家里了。','Tôi để quên điện thoại ở nhà.']],
+ q:[{k:'or',p:'Đổi thành câu chữ 把: 我看完了这本书。',t:['我','把','这本书','看完了'],a:'我把这本书看完了'},
+    {k:'or',p:'Đổi thành câu chữ 被: 风很大，吹倒了树。',t:['树','被','风','吹倒了'],a:'树被风吹倒了'},
+    {k:'mc',p:'没有可乐了，可乐____杰克喝光了。',o:['被','把','对'],a:0},
+    {k:'mc',p:'请____课本打开。',o:['把','被','让'],a:0},
+    {k:'mc',p:'Câu nào đúng?',o:['碗叫我打破了。','碗叫打破了。','我叫碗打破了。'],a:0}]},
+{l:6,t:'虚词“就”“才”',vt:'Hư từ 就 và 才',
+ exp:['就: mang giọng khẳng định, nhấn mạnh (前面就是我家).','才 cho thấy người nói thấy việc xảy ra muộn, chậm, khó; 就 thì sớm, nhanh, dễ.','才 còn có nghĩa "vừa mới" (= 刚刚) và "chỉ" (= 只, ít).'],
+ str:['就 = sớm / nhanh / dễ / nhấn mạnh','才 = muộn / chậm / khó','才 = vừa mới; 才 = chỉ'],
+ ex:[['你看，前面就是我家。','Bạn xem, phía trước chính là nhà tôi.'],['你买了那么多菜，什么时候才能吃完啊？','Bạn mua nhiều thức ăn thế, bao giờ mới ăn hết?'],['马上就到我爸爸的生日了。','Sắp đến sinh nhật bố tôi rồi.'],['春节才过完，房间就订好了。','Tết vừa mới qua mà phòng đã đặt xong rồi.'],['才学了半年，他的汉语就这么好了。','Mới học có nửa năm mà tiếng Trung của anh ấy đã giỏi thế.']],
+ q:[{k:'mc',p:'现在才六点半，刘月____到学校了。',o:['就','才'],a:0},
+    {k:'mc',p:'航班应该九点一刻到，十点半____到。',o:['才','就'],a:0},
+    {k:'mc',p:'我____来，没听见你们说什么。',o:['才','就'],a:0},
+    {k:'mc',p:'她____学了六个月，汉语就说得这么好。',o:['才','就'],a:0},
+    {k:'mc',p:'你想认识李梅？她____是李梅。',o:['就','才'],a:0}]},
+{l:7,t:'“的”字结构',vt:'Cấu trúc chữ 的',
+ exp:['Khi ngữ cảnh đã rõ, danh từ trong "X + 的 + danh từ" có thể lược đi, chỉ còn "X + 的" mà nghĩa không đổi.','Cấu trúc chữ 的 có thể làm chủ ngữ hoặc tân ngữ.'],
+ str:['X + 的 (+ danh từ đã lược)'],
+ ex:[['这两件衬衣，白的是我的，蓝的是他的。','Hai chiếc áo này, cái trắng là của tôi, cái xanh là của anh ấy.'],['坐在前面的是谁？','Người ngồi phía trước là ai?'],['该送的好像都送了。','Những thứ cần tặng hình như đã tặng hết.'],['咱们先吃新鲜的。','Chúng ta ăn đồ tươi trước.']],
+ q:[{k:'mc',p:'这件太贵了，有没有便宜一点儿____？',o:['的','得','地'],a:0},
+    {k:'or',p:'Sắp xếp thành câu',t:['坐在','你前面的','就是','我妈妈'],a:'坐在你前面的就是我妈妈'},
+    {k:'mc',p:'你写的汉字比我写____好看多了。',o:['的','得','地'],a:0},
+    {k:'mc',p:'今天来____都是我的老同学和老同事。',o:['的','得','了'],a:0},
+    {k:'or',p:'Sắp xếp thành câu',t:['你的话','我不明白，','他的','我明白了'],a:'你的话我不明白，他的我明白了'}]},
+{l:8,t:'动词的重叠',vt:'Lặp động từ',
+ exp:['Lặp động từ biểu thị thời gian ngắn hoặc số lượng ít (你坐坐，我马上来).','Biểu thị thử làm hoặc đề nghị, giọng nhẹ nhàng (休息休息吧). Động từ một âm tiết có thể chèn 一: 试一试.','Với việc đã xảy ra: V了V, hành động ngắn (看了看).','Với việc thường làm, mang sắc thái thư thái (上上网, 聊聊天儿).'],
+ str:['AA / A一A / A了A','ABAB (休息休息)'],
+ ex:[['这个问题我得思考思考。','Vấn đề này tôi phải suy nghĩ đã.'],['让我来试一试吧。','Để tôi thử xem.'],['他只是过来看了看，马上就走了。','Anh ấy chỉ ghé qua xem một chút rồi đi ngay.'],['有时候她也上上网，和女儿聊聊天儿。','Đôi khi bà ấy cũng lên mạng, trò chuyện với con gái.'],['退休以后，他每天读读报，看看电视。','Nghỉ hưu rồi, mỗi ngày ông đọc báo, xem tivi.']],
+ q:[{k:'mc',p:'你昨天说的那本书，我想看____。',o:['看','着','过'],a:0},
+    {k:'mc',p:'他走进教室，拍____我的头。',o:['了拍','拍了','一拍了'],a:0},
+    {k:'mc',p:'Dạng lặp đúng của 休息:',o:['休息休息','休休息息','休息一休息'],a:0},
+    {k:'mc',p:'我太困了，让我先洗____脸。',o:['洗','了','着'],a:0},
+    {k:'or',p:'Sắp xếp thành câu',t:['退休以后','他每天','读读报，','看看电视'],a:'退休以后他每天读读报，看看电视'}]},
+{l:9,t:'“V1着V2”格式',vt:'Cấu trúc V1 着 V2',
+ exp:['V1 着 diễn tả trạng thái hay cách thức đi kèm khi thực hiện hành động V2.','Rất hay dùng khi kể chuyện, tả người: 他笑着说, 她唱着歌走出家门.'],
+ str:['S + V1着 (+O) + V2 (+O)'],
+ ex:[['他笑着对我说……','Anh ấy cười nói với tôi…'],['她唱着歌走出家门。','Cô ấy vừa hát vừa đi ra khỏi nhà.'],['他经常背着照相机到外面走走，拍拍照。','Anh ấy hay đeo máy ảnh ra ngoài dạo, chụp ảnh.'],['我就听着音乐看着窗外。','Tôi vừa nghe nhạc vừa nhìn ra ngoài cửa sổ.']],
+ q:[{k:'or',p:'妈妈笑了。妈妈对我说… → nối bằng V1着V2',t:['妈妈','笑着','对我说'],a:'妈妈笑着对我说'},
+    {k:'or',p:'弟弟在听音乐，弟弟在看书。',t:['弟弟','听着音乐','看书'],a:'弟弟听着音乐看书'},
+    {k:'mc',p:'这个女孩子____打电话。',o:['哭着','哭了','哭过'],a:0},
+    {k:'mc',p:'爷爷拿____报纸睡着了。',o:['着','了','过'],a:0},
+    {k:'mc',p:'我朋友拿____手机走进了教室。',o:['着','得','过'],a:0}]},
+{l:10,t:'带“得”的“比”字句',vt:'Câu so sánh 比 có bổ ngữ 得',
+ exp:['Khi kết quả so sánh được nói bằng bổ ngữ tình thái, ta có câu 比 có 得.','"比 + B" có hai vị trí: trước động từ (他比我起得早) hoặc sau 得 (他起得比我早).','Không dùng 很/非常 trước tính từ; có thể thêm 多了, 一点儿 hoặc con số phía sau.'],
+ str:['A + 比B + V得 + Tính từ','A + V得 + 比B + Tính từ'],
+ ex:[['他比你唱得好听。','Anh ấy hát hay hơn bạn.'],['马路上车太多了，汽车比自行车跑得慢。','Đường đông xe quá, ô tô chạy còn chậm hơn xe đạp.'],['他起得比我早。','Anh ấy dậy sớm hơn tôi.'],['你长得比他着急多了。','Trông bạn già hơn anh ấy nhiều.']],
+ q:[{k:'mc',p:'他起得比我____。',o:['早','很早','非常早'],a:0},
+    {k:'or',p:'我晚上10点睡，弟弟12点睡。',t:['我','比弟弟','睡得','早'],a:'我比弟弟睡得早'},
+    {k:'mc',p:'爸爸喝了两杯茶，妈妈喝了一杯。',o:['爸爸比妈妈喝得多。','爸爸喝得比妈妈很多。','爸爸比妈妈多喝得。'],a:0},
+    {k:'or',p:'西瓜5元一斤，苹果8元一斤。',t:['苹果','卖得','比西瓜','贵'],a:'苹果卖得比西瓜贵'},
+    {k:'mc',p:'汽车比自行车跑____慢。',o:['得','的','地'],a:0}]}
+];
+
+const DLG={
+1:[['A','天气太热了，我一点儿胃口也没有。','Trời nóng quá, tôi chẳng muốn ăn gì cả.'],['B','那今晚我亲自下厨，做几个家常菜吧。','Vậy tối nay tôi tự vào bếp, nấu vài món cơm nhà nhé.'],['A','太好了！你的拿手菜是什么？','Tuyệt quá! Món tủ của bạn là gì?'],['B','西红柿炒蛋和水煮鱼。你怕辣吗？','Trứng xào cà chua và cá luộc cay. Bạn sợ cay không?'],['A','不怕，越辣越好。喝的我来带！','Không sợ, càng cay càng tốt. Đồ uống để tôi mang!'],['B','好，我再煮一锅绿豆汤当甜品。','Được, tôi nấu thêm nồi chè đậu xanh làm tráng miệng.'],['A','看来今天我真有口福了。','Xem ra hôm nay tôi có lộc ăn rồi.']],
+2:[['A','说曹操，曹操到！我们正说你呢。','Nhắc Tào Tháo, Tào Tháo đến! Bọn mình đang nói về bạn đấy.'],['B','说我什么？没说我坏话吧？','Nói gì về mình thế? Không nói xấu mình chứ?'],['A','哪儿啊！听说你上周参加了一个中国婚礼？','Đâu có! Nghe nói tuần trước bạn đi dự một đám cưới Trung Quốc?'],['B','对，印象特别深刻。新娘先穿婚纱，后来又换了中式服装。','Đúng, ấn tượng lắm. Cô dâu mặc váy cưới trước, sau đó đổi sang trang phục kiểu Trung.'],['A','这就叫中西合璧。','Đó gọi là kết hợp Đông Tây.'],['B','新郎还说了一句“执子之手，与子偕老”，这话是什么意思？','Chú rể còn nói câu "chấp tử chi thủ, dữ tử giai lão", câu này nghĩa là gì?'],['A','意思是跟你结婚，就要一起到老。','Nghĩa là cưới em rồi thì sẽ cùng nhau đến già.']],
+3:[['A','下午没课，我们一起去健身吧？','Chiều không có tiết, mình đi tập gym nhé?'],['B','健身嘛，我不太喜欢。打羽毛球怎么样？','Tập gym thì mình không thích lắm. Đánh cầu lông thì sao?'],['A','羽毛球我打不好，你是高手。','Cầu lông mình đánh không giỏi, bạn là cao thủ mà.'],['B','没关系，业余的，玩玩儿呗。我约了小王四点在体育馆见。','Không sao, nghiệp dư thôi, chơi cho vui ấy mà. Mình hẹn Tiểu Vương 4 giờ ở nhà thi đấu.'],['A','好，我回去换双运动鞋。','Được, mình về thay đôi giày thể thao.'],['B','别忘了打球以前先热身。','Đừng quên khởi động trước khi chơi nhé.']],
+4:[['A','这个假期你打算去哪儿？','Kỳ nghỉ này bạn định đi đâu?'],['B','我想去西安自助游，看看兵马俑。','Mình muốn đi Tây An tự túc, xem tượng binh mã.'],['A','自助游要做很多功课吧？','Đi tự túc phải chuẩn bị nhiều lắm nhỉ?'],['B','是啊，我在网上查了很多攻略。','Đúng vậy, mình tra rất nhiều cẩm nang trên mạng.'],['A','我去过一次西安，古城墙一定要去走一走。','Mình đi Tây An một lần rồi, nhất định phải lên tường thành cổ đi dạo.'],['B','谢谢！回来我把旅行见闻讲给你听。','Cảm ơn! Về mình kể cho bạn nghe những gì thấy được.']],
+5:[['A','糟了！我的手机不见了！','Gay rồi! Điện thoại của tôi mất rồi!'],['B','别着急，是不是落在出租车上了？','Đừng vội, có phải để quên trên taxi không?'],['A','不会，我记得刚才还用过。','Không đâu, tôi nhớ vừa nãy còn dùng.'],['B','我给你打个电话……你听，有响声吗？','Để tôi gọi thử… Bạn nghe xem, có tiếng chuông không?'],['A','没有，可能是静音状态。','Không, chắc đang để im lặng.'],['B','你看，手机就在你座位下面呢！','Bạn xem, điện thoại nằm ngay dưới ghế bạn kìa!'],['A','吓了我一跳，原来是虚惊一场。','Làm tôi hết hồn, hóa ra chỉ là một phen hú vía.']],
+6:[['A','下周是我妈妈的生日，我不知道送什么礼物好。','Tuần sau là sinh nhật mẹ tôi, tôi không biết tặng quà gì.'],['B','送礼物要投其所好。你妈妈喜欢什么？','Tặng quà phải hợp sở thích. Mẹ bạn thích gì?'],['A','她喜欢喝茶，性格也很安静。','Mẹ thích uống trà, tính cũng rất trầm.'],['B','那就送一套茶具吧，又实用又能体现你的心意。','Vậy tặng một bộ ấm chén đi, vừa thiết thực vừa thể hiện được tấm lòng.'],['A','好主意！你真是内行。','Ý hay! Bạn đúng là người rành.'],['B','哪里，最重要的是心意要真诚。','Đâu có, quan trọng nhất là tấm lòng chân thành.']],
+7:[['A','你为什么整天愁眉苦脸的？','Sao cả ngày bạn mặt mày ủ rũ thế?'],['B','工作太忙了，我感觉很累。','Công việc bận quá, tôi thấy rất mệt.'],['A','别这样，笑一笑，十年少嘛！','Đừng thế, cười một cái trẻ ra mười tuổi mà!'],['B','你总是这么爱笑，难怪看起来这么年轻。','Bạn lúc nào cũng hay cười, thảo nào trông trẻ thế.'],['A','我听过一个演讲，说微笑的力量很大，还会传染。','Tôi từng nghe một bài diễn thuyết, nói nụ cười có sức mạnh lớn, còn lây được nữa.'],['B','好吧，那我也试试，每天多笑几次。','Được, vậy tôi cũng thử, mỗi ngày cười nhiều hơn.']],
+8:[['A','服务员，我们要点菜。','Phục vụ ơi, chúng tôi muốn gọi món.'],['B','好的，请问几位？想吃点儿什么？','Vâng, cho hỏi mấy người ạ? Muốn ăn gì ạ?'],['A','两位。先来一个凉菜，再来一个咕咾肉和一个素菜。','Hai người. Cho một món nguội trước, thêm thịt chua ngọt và một món rau.'],['B','主食要米饭还是炒饭？','Món chính dùng cơm trắng hay cơm rang ạ?'],['A','来一份炒饭吧。你们这儿的菜做得真精致。','Cho một phần cơm rang. Món ở đây làm tinh tế thật.'],['B','谢谢！我们老板是广东人，做菜很讲究。','Cảm ơn! Ông chủ chúng tôi là người Quảng Đông, nấu ăn rất cầu kỳ.']],
+9:[['A','昨天坐出租车，我跟司机聊了一路。','Hôm qua đi taxi, tôi nói chuyện với tài xế suốt đường.'],['B','你不怕跟陌生人说话吗？','Bạn không ngại nói chuyện với người lạ à?'],['A','不怕，司机很友好，还纠正了我的发音。','Không ngại, tài xế rất thân thiện, còn sửa phát âm cho tôi.'],['B','怪不得你的汉语说得越来越流利了。','Thảo nào tiếng Trung của bạn ngày càng lưu loát.'],['A','我们还找到了共同话题，他也喜欢京剧。','Chúng tôi còn tìm được chủ đề chung, ông ấy cũng thích kinh kịch.'],['B','看来你的收获不小啊！','Xem ra bạn thu hoạch được không ít đâu!']],
+10:[['A','你最近忙什么呢？好久没见你了。','Dạo này bạn bận gì thế? Lâu lắm không gặp.'],['B','一直在写论文，每天睡得很晚，感觉自己都变老了。','Toàn viết luận văn, ngày nào cũng ngủ muộn, thấy mình già đi rồi.'],['A','你才二十五岁，老什么老！','Bạn mới 25 tuổi, già gì mà già!'],['B','可是你看，你比我睡得早，精神也比我好。','Nhưng bạn xem, bạn ngủ sớm hơn tôi, tinh thần cũng tốt hơn tôi.'],['A','年龄不重要，心态好最重要。','Tuổi tác không quan trọng, tâm thái tốt mới quan trọng nhất.'],['B','你说得对，至少周末我要好好休息。','Bạn nói đúng, ít nhất cuối tuần tôi phải nghỉ ngơi cho tử tế.']]
+};
+
+
+
+/* ---------- audio (same recordings as the main app) ---------- */
+function ansText(q){return q.k==='or'?q.a:(q.p.includes('____')?q.p.split('→ ').pop().replace('____',q.o[q.a]):q.o[q.a])}
+const IDX={};
+WORDS.forEach(w=>{IDX[w.hz]??=w.l;IDX[w.ex]??=w.l});
+GRAM.forEach(g=>{g.ex.forEach(([z])=>{IDX[z.split(' → ').pop()]??=g.l});g.q.forEach(q=>{IDX[ansText(q)]??=g.l})});
+Object.entries(DLG).forEach(([l,ls])=>ls.forEach(x=>{IDX[x[1]]??=+l}));
+const AUD={f:{},m:{}},LOAD={};
+function loadA(v,l){if(AUD[v][l])return Promise.resolve(AUD[v][l]);const k=v+l;if(!LOAD[k])LOAD[k]=fetch('audio/'+v+'-'+l+'.json').then(r=>r.ok?r.json():null).then(j=>{if(j)AUD[v][l]=j;else delete LOAD[k];return j}).catch(()=>{delete LOAD[k];return null});return LOAD[k]}
+const AE=new Audio();let sayId=0,aeDone=null;
+function stopSay(){sayId++;try{AE.pause()}catch(e){}if(aeDone){const f=aeDone;aeDone=null;f()}}
+async function say(t,voice,rate){stopSay();const id=sayId;voice=voice||S.voice;const l=IDX[t];const j=l?await loadA(voice,l):null;if(id!==sayId)return;
+  if(j&&j[t])return new Promise(res=>{aeDone=res;AE.src='data:audio/mpeg;base64,'+j[t];AE.defaultPlaybackRate=AE.playbackRate=rate||1;AE.onended=AE.onerror=()=>{aeDone=null;res()};AE.play().catch(()=>{aeDone=null;res()})});
+  if('speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=rate||1;return new Promise(r=>{u.onend=u.onerror=r;speechSynthesis.speak(u)})}}
+const roleVoice=who=>who==='A'?S.voice:(S.voice==='f'?'m':'f');
+
+/* ---------- pronunciation scoring ---------- */
+const PP=window.pinyinPro;
+const isZh=c=>/[㐀-鿿]/.test(c);
+const DIG='零一二三四五六七八九';
+function numZh(n){n=+n;if(!isFinite(n))return '';if(n<10)return DIG[n];if(n<20)return '十'+(n%10?DIG[n%10]:'');if(n<100)return DIG[Math.floor(n/10)]+'十'+(n%10?DIG[n%10]:'');
+  if(n<1000){const r=n%100;return DIG[Math.floor(n/100)]+'百'+(r?(r<10?'零':'')+(r<20&&r>=10?'一':'')+numZh(r):'')}
+  if(n<10000){const r=n%1000;return DIG[Math.floor(n/1000)]+'千'+(r?(r<100?'零':'')+numZh(r):'')}return String(n).split('').map(d=>DIG[d]).join('')}
+function normHeard(s){return s.replace(/(\d+)\s*%/g,(m,n)=>'百分之'+numZh(n)).replace(/(\d+):(\d+)/g,(m,a,b)=>numZh(a)+'点'+(b==='30'?'半':numZh(b)+'分')).replace(/\d+/g,m=>numZh(m))}
+function syl(text){const chars=[...text].filter(isZh);if(!chars.length||!PP)return [];const s=chars.join('');
+  const o={type:'array',nonZh:'removed'};const py=PP.pinyin(s,{...o}),ini=PP.pinyin(s,{...o,pattern:'initial'}),fin=PP.pinyin(s,{...o,pattern:'final',toneType:'none'}),num=PP.pinyin(s,{...o,pattern:'num'});
+  return chars.map((c,i)=>({c,py:py[i]||'',ini:ini[i]||'',fin:fin[i]||'',tone:+(num[i]||0),base:(ini[i]||'')+(fin[i]||'')}))}
+function align(T,R){const n=T.length,m=R.length,D=[...Array(n+1)].map(()=>Array(m+1).fill(0));
+  const cost=(a,b)=>a.base===b.base?(a.tone===b.tone||a.tone===0||b.tone===0?0:0.4):(a.ini===b.ini||a.fin===b.fin?0.75:1);
+  for(let i=0;i<=n;i++)D[i][0]=i;for(let j=0;j<=m;j++)D[0][j]=j;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+1,D[i-1][j-1]+cost(T[i-1],R[j-1]));
+  const out=Array(n);let i=n,j=m,extra=0;
+  while(i>0||j>0){if(i>0&&j>0&&D[i][j]===D[i-1][j-1]+cost(T[i-1],R[j-1])){const a=T[i-1],b=R[j-1];out[i-1]={t:a,h:b,st:a.base===b.base?(a.tone===b.tone||a.tone===0||b.tone===0?'ok':'tone'):'sound'};i--;j--}
+    else if(i>0&&D[i][j]===D[i-1][j]+1){out[i-1]={t:T[i-1],h:null,st:'miss'};i--}else{extra++;j--}}
+  const sc=out.reduce((s,x)=>s+(x.st==='ok'?1:x.st==='tone'?0.5:x.st==='sound'&&(x.t.ini===x.h.ini||x.t.fin===x.h.fin)?0.25:0),0);
+  return {cells:out,extra,score:n?Math.max(0,Math.round((sc-extra*0.25)/n*100)):0}}
+function grade(target,alts){const T=syl(target);let best=null;
+  for(const a of alts){const h=normHeard(a);const r=align(T,syl(h));r.heard=a;if(!best||r.score>best.score)best=r}return best}
+
+const TONE={0:'thanh nhẹ: đọc ngắn và nhẹ',1:'thanh 1: cao và đều, kéo ngang',2:'thanh 2: đi lên từ trung bình lên cao (gần dấu sắc)',3:'thanh 3: hạ thấp rồi mới lên; trong câu thường chỉ hạ thấp (gần dấu hỏi)',4:'thanh 4: từ cao rơi xuống thật nhanh, dứt khoát'};
+const ASP={b:'p',d:'t',g:'k',z:'c',zh:'ch',j:'q'};
+function iniTip(need,got){
+  const pair=(a,b)=>(ASP[a]===b||ASP[b]===a);
+  if(pair(need,got))return ['p','t','k','c','ch','q'].includes(need)?`"${need}" phải bật hơi mạnh (để tay trước miệng thấy luồng hơi).`:`"${need}" không bật hơi, đọc nhẹ và gọn.`;
+  if(['zh','ch','sh','r'].includes(need))return `"${need}" là âm uốn lưỡi: cong đầu lưỡi lên chạm ngạc cứng${need==='r'?', không rung lưỡi như r tiếng Việt':''}.`;
+  if(['z','c','s'].includes(need))return `"${need}" đầu lưỡi thẳng, chạm sau răng cửa trên, không uốn lưỡi.`;
+  if(['j','q','x'].includes(need))return `"${need}": mặt lưỡi áp lên ngạc cứng, môi dẹt như đang cười${need==='q'?', có bật hơi':''}.`;
+  if(need==='n'||need==='l')return need==='n'?'"n" là âm mũi, hơi đi qua mũi.':'"l" đầu lưỡi chạm lợi trên, hơi thoát hai bên lưỡi, không đi qua mũi.';
+  if(need==='h')return '"h" xát ở cuống họng, mạnh hơn h tiếng Việt.';
+  if(need==='f')return '"f" môi dưới chạm nhẹ răng trên.';
+  if(!need)return `Chữ này không có phụ âm đầu, bắt đầu thẳng bằng nguyên âm.`;
+  return `Phụ âm đầu cần là "${need}".`}
+function finTip(need,got,ini){
+  if(/ng$/.test(need)&&/n$/.test(got)&&!/ng$/.test(got))return `Vần "${need}" kết thúc bằng -ng: lưỡi lùi về sau, miệng mở (như "ng" tiếng Việt), đừng đọc thành -n.`;
+  if(/n$/.test(need)&&!/ng$/.test(need)&&/ng$/.test(got))return `Vần "${need}" kết thúc bằng -n: đầu lưỡi chạm lợi trên ở cuối âm, đừng đọc thành -ng.`;
+  if(/ü|v/.test(need))return `Vần "${need}": tròn môi như "u" nhưng lưỡi đặt như "i".`;
+  if(need==='i'&&['zh','ch','sh','r','z','c','s'].includes(ini))return `Sau ${ini}, "i" đọc gần "ư", không đọc "i".`;
+  if(need==='e')return 'Vần "e": miệng hơi mở, đọc gần "ưa/ơ" ở sau họng.';
+  return `Vần cần là "${need}", bạn đọc gần "${got}".`}
+function tipsFor(r){const out=[];
+  for(const x of r.cells){const t=x.t,h=x.h;if(x.st==='ok')continue;
+    if(x.st==='miss')out.push(`<span class="hz">${t.c}</span> (${t.py}): không nghe thấy chữ này. Có thể bạn nói nhỏ hoặc đọc lướt qua.`);
+    else if(x.st==='tone')out.push(`<span class="hz">${t.c}</span> (${t.py}): bạn đọc gần ${h.py}. Cần ${TONE[t.tone]}.`);
+    else{const parts=[];if(t.ini!==h.ini)parts.push(iniTip(t.ini,h.ini));if(t.fin!==h.fin)parts.push(finTip(t.fin,h.fin,t.ini));if(t.tone!==h.tone&&t.tone&&h.tone)parts.push(`Cần ${TONE[t.tone]}.`);
+      out.push(`<span class="hz">${t.c}</span> (${t.py}): nghe giống ${h.py}. ${parts.join(' ')}`)}
+    if(out.length>=6)break}
+  if(r.extra)out.push(`Có ${r.extra} âm thừa so với câu mẫu. Hãy nói đúng câu và dừng lại khi xong.`);
+  return out}
+
+/* ---------- state ---------- */
+const LSK='easy-chinese-speak';
+const S=Object.assign({mode:'word',l:1,voice:'f',i:{},best:{},role:'B',show:false},(()=>{try{return JSON.parse(localStorage.getItem(LSK))||{}}catch(e){return {}}})());
+const m=location.hash.match(/bai-(\d+)/);if(m)S.l=Math.min(10,Math.max(1,+m[1]));
+const saveS=()=>{try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}};
+const V={res:null,listening:false,rec:null,mine:null,dl:0,err:''};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function items(){const l=S.l;if(S.mode==='word')return WORDS.filter(w=>w.l===l).map(w=>({t:w.hz,py:w.py,vi:w.vi}));
+  if(S.mode==='sent'){const a=WORDS.filter(w=>w.l===l).map(w=>({t:w.ex,vi:w.exvi}));GRAM.filter(g=>g.l===l).forEach(g=>g.ex.forEach(([z,v])=>a.push({t:z.split(' → ').pop(),vi:v})));return a}
+  return []}
+const key=()=>S.mode+S.l;
+const cur=()=>{const a=items();const i=Math.min(S.i[key()]||0,a.length-1);return {a,i,it:a[i]}};
+
+/* ---------- speech recognition & recording ---------- */
+let recog=null;
+function listen(target){if(!SR)return;
+  if(V.listening){recog&&recog.stop();return}
+  stopSay();V.err='';V.res=null;const r=new SR();recog=r;r.lang='zh-CN';r.interimResults=false;r.maxAlternatives=5;r.continuous=false;
+  let got=false;V.listening=true;render();
+  r.onresult=e=>{got=true;const alts=[...e.results[0]].map(a=>a.transcript.trim()).filter(Boolean);const g=grade(target,alts.length?alts:['']);V.res={...g,target,tips:tipsFor(g)};
+    S.best[target]=Math.max(S.best[target]||0,g.score);saveS()};
+  r.onerror=e=>{V.err=e.error==='not-allowed'||e.error==='service-not-allowed'?'perm':e.error==='no-speech'?'nospeech':'other'};
+  r.onend=()=>{V.listening=false;if(!got&&!V.err)V.err='nospeech';render()};
+  try{r.start()}catch(e){V.listening=false;V.err='other';render()}}
+async function record(){if(V.rec){V.rec.stop();return}
+  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});const mr=new MediaRecorder(s);const ch=[];
+    mr.ondataavailable=e=>e.data.size&&ch.push(e.data);
+    mr.onstop=()=>{s.getTracks().forEach(t=>t.stop());V.rec=null;if(V.mine)URL.revokeObjectURL(V.mine);V.mine=URL.createObjectURL(new Blob(ch,{type:mr.mimeType||'audio/mp4'}));render();compare()};
+    mr.start();V.rec=mr;render()}catch(e){V.err='perm';render()}}
+async function compare(){const t=target();if(!V.mine||!t)return;const a=new Audio(V.mine);await new Promise(r=>{a.onended=a.onerror=r;a.play().catch(r)});await new Promise(r=>setTimeout(r,350));await say(t)}
+
+/* ---------- views ---------- */
+const MIC='<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+function target(){if(S.mode==='dlg'){const L=DLG[S.l],i=S.i[key()]||0;return L[i]&&L[i][0]===S.role?L[i][1]:null}return cur().it&&cur().it.t}
+function resultHTML(){const r=V.res;if(!r)return '';const cls=r.score>=85?'good':r.score>=60?'mid':'bad';
+  return `<div class="res">${r.cells.map(x=>`<span class="ch ${x.st}"><b>${x.t.c}</b><i>${x.t.py}</i>${x.st!=='ok'&&x.h?`<s>${x.h.py}</s>`:''}</span>`).join('')}</div>
+  <div class="score ${cls}">${r.score}%</div><div class="vi">${r.score>=85?'Rất chuẩn!':r.score>=60?'Khá tốt, sửa thêm vài chỗ nhé.':'Chưa chuẩn, nghe mẫu rồi thử lại.'}</div>
+  <div class="heard">Điện thoại nghe được: <span>${esc(r.heard||'(không rõ)')}</span></div>
+  ${r.tips.length?`<ul class="tips">${r.tips.map(t=>`<li>${t}</li>`).join('')}</ul>`:''}`}
+function errHTML(){return V.err==='nosr'?`<div class="note">Trình duyệt này chưa hỗ trợ nhận dạng giọng nói. Hãy mở trang bằng <b>Safari</b> trên iPhone/iPad hoặc <b>Chrome</b> trên Android/máy tính.</div>`:
+  V.err==='perm'?`<div class="note">Chưa được dùng micro. Hãy cho phép micro cho trang này trong cài đặt trình duyệt rồi thử lại.</div>`:
+  V.err==='nospeech'?`<div class="note">Chưa nghe thấy gì. Bấm nút micro, nói rõ ràng ngay sau đó, gần điện thoại hơn.</div>`:
+  V.err==='other'?`<div class="note">Nhận dạng giọng nói gặp lỗi mạng hoặc bị gián đoạn. Thử lại sau giây lát.</div>`:''}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function vPractice(){const {a,i,it}=cur();if(!it)return '';const best=S.best[it.t];
+  return `<div class="card"><div class="meta"><span>${i+1}/${a.length}</span>${best!=null?`<span class="chip">Tốt nhất ${best}%</span>`:''}</div>
+  <div class="big ${S.mode==='sent'?'sent':''}">${it.t}</div>${it.py&&(S.show||V.res)?`<div class="py">${it.py}</div>`:''}<div class="vi">${it.vi}</div>
+  <div class="row" style="justify-content:center;margin-top:10px"><button class="btn sm" data-a="model">Nghe mẫu</button><button class="btn sm" data-a="slow">Nghe chậm</button>${S.mode==='word'?`<button class="btn sm" data-a="show">${S.show?'Ẩn':'Hiện'} pinyin</button>`:''}<button class="btn sm" data-a="rec">${V.rec?'Dừng ghi':'Ghi âm nghe lại'}</button>${V.mine?`<button class="btn sm" data-a="cmp">So với mẫu</button>`:''}</div>
+  ${resultHTML()}${errHTML()}</div>`}
+function vDialog(){const L=DLG[S.l],i=S.i[key()]||0;
+  let h=`<div class="card" style="text-align:left"><div class="row" style="justify-content:space-between"><span class="vi">Bạn đóng vai</span><div class="seg"><button class="${S.role==='A'?'on':''}" data-a="role" data-r="A">A</button><button class="${S.role==='B'?'on':''}" data-a="role" data-r="B">B</button></div></div>`;
+  L.slice(0,i+1).forEach(([who,zh,vi],k)=>{const me=who===S.role,hide=me&&k===i&&!V.res&&!S.show;
+    h+=`<div class="line ${me?'me':''}"><span class="who">${who}</span><div class="bub"><div class="hz">${hide?'＿＿＿＿':zh}</div><div class="vi">${vi}</div></div></div>`});
+  const cl=L[i];
+  if(!cl)h+=`<p class="center">Hết hội thoại.</p>`;
+  else if(cl[0]===S.role)h+=`<div class="note" style="margin-top:8px">Đến lượt bạn: nhìn nghĩa tiếng Việt và nói câu tiếng Trung, rồi bấm micro.</div><div class="row" style="margin-top:8px"><button class="btn sm" data-a="show">${S.show?'Ẩn':'Gợi ý'} câu</button><button class="btn sm" data-a="model">Nghe mẫu</button></div>${resultHTML()}${errHTML()}`;
+  else h+=`<div class="row" style="margin-top:8px"><button class="btn sm" data-a="partner">Nghe lại người kia</button></div>`;
+  if(i>=L.length-1&&(cl&&cl[0]!==S.role||V.res))h+=`<div class="row" style="margin-top:10px"><button class="btn sm pri" data-a="restart">Luyện lại từ đầu</button></div>`;
+  return h+'</div>'}
+function render(){
+  document.getElementById('vsel').innerHTML=[['f','Nữ'],['m','Nam']].map(([v,n])=>`<button class="${S.voice===v?'on':''}" data-a="voice" data-v="${v}">${n}</button>`).join('');
+  document.getElementById('modes').innerHTML=[['word','Từ vựng'],['sent','Câu mẫu'],['dlg','Hội thoại']].map(([k,n])=>`<button class="${S.mode===k?'on':''}" data-a="mode" data-k="${k}">${n}</button>`).join('');
+  const ls=document.getElementById('lsel');if(!ls.options.length)ls.innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">Bài ${n} · ${LESSONS[n][0]}</option>`).join('');ls.value=S.l;
+  document.getElementById('main').innerHTML=(SR?'':errHTMLFor('nosr'))+(S.mode==='dlg'?vDialog():vPractice());
+  const t=target(),isDlg=S.mode==='dlg';
+  document.getElementById('bar').innerHTML=`<button class="btn" data-a="prev" ${isDlg?'style="visibility:hidden"':''}>‹ Trước</button>
+   <div><button class="mic ${V.listening?'on':''}" data-a="mic" ${t?'':'disabled style="opacity:.4"'} aria-label="${V.listening?'Dừng nghe':'Bấm để nói'}">${MIC}</button><div class="miclabel">${V.listening?'Đang nghe… bấm để dừng':'Bấm để nói'}</div></div>
+   <button class="btn pri" data-a="next">${isDlg?'Tiếp':'Sau ›'}</button>`}
+function errHTMLFor(k){const o=V.err;V.err=k;const h=errHTML();V.err=o;return h}
+function move(step){const {a}=cur();const k=key();S.i[k]=Math.max(0,Math.min(a.length-1,(S.i[k]||0)+step));V.res=null;V.err='';saveS();render();const t=target();if(t)say(t)}
+async function dlgAdvance(){const L=DLG[S.l],k=key();V.res=null;V.err='';
+  while((S.i[k]||0)<L.length){const l=L[S.i[k]||0];if(l[0]===S.role)break;render();await say(l[1],roleVoice(l[0]));if((S.i[k]||0)>=L.length-1){render();return}S.i[k]=(S.i[k]||0)+1}
+  saveS();render()}
+document.addEventListener('change',e=>{if(e.target.id==='lsel'){S.l=+e.target.value;V.res=null;saveS();render();if(S.mode==='dlg'){S.i[key()]=0;dlgAdvance()}}});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const a=b.dataset.a;
+  if(a==='voice'){S.voice=b.dataset.v;saveS();render()}
+  else if(a==='mode'){S.mode=b.dataset.k;V.res=null;V.err='';saveS();render();if(S.mode==='dlg'){S.i[key()]=0;dlgAdvance()}}
+  else if(a==='mic'){const t=target();if(t)listen(t)}
+  else if(a==='model'){const t=S.mode==='dlg'?DLG[S.l][S.i[key()]||0][1]:target();if(t)say(t,S.mode==='dlg'?roleVoice(S.role):null)}
+  else if(a==='slow'){const t=target();if(t)say(t,null,0.65)}
+  else if(a==='show'){S.show=!S.show;saveS();render()}
+  else if(a==='rec')record();
+  else if(a==='cmp')compare();
+  else if(a==='prev')move(-1);
+  else if(a==='next'){if(S.mode==='dlg'){const L=DLG[S.l],k=key();if((S.i[k]||0)<L.length-1){S.i[k]=(S.i[k]||0)+1;dlgAdvance()}}else move(1)}
+  else if(a==='role'){S.role=b.dataset.r;S.i[key()]=0;saveS();dlgAdvance()}
+  else if(a==='partner'){const l=DLG[S.l][S.i[key()]||0];say(l[1],roleVoice(l[0]))}
+  else if(a==='restart'){S.i[key()]=0;dlgAdvance()}
+});
+render();
+if(S.mode==='dlg')dlgAdvance();
+</script>
+</body>
+</html>
