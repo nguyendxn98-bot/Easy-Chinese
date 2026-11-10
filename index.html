@@ -29,6 +29,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-siz
 button,select{font:inherit;color:inherit}
 .wrap{max-width:640px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(150px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.home{display:inline-flex;align-items:center;gap:6px;color:var(--jade);font-weight:600;font-size:14px;text-decoration:none;padding:6px 0;margin-bottom:4px}
+.home:focus-visible{outline:2px solid var(--jade);outline-offset:2px;border-radius:6px}
 .logo{width:46px;height:46px;flex:none}
 .top h1{font-size:17px;margin:0;line-height:1.2}
 .top small{color:var(--muted);font-size:12.5px}
@@ -106,7 +108,8 @@ select{background:var(--card);border:1px solid var(--line);border-radius:10px;pa
   <path d="M18 186 Q38 178 58 186 T98 186 T138 186 T178 186" fill="none" stroke="#8A5A2B" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="7 3"/>
 </symbol></defs></svg>
 <div class="wrap">
-  <header class="top"><svg class="logo" viewBox="0 0 200 200" role="img" aria-label="Logo Easy Chinese"><use href="#logo"/></svg><div><h1>Easy Chinese</h1><small>Luyện nói · HSK4 Quyển 1</small></div><span class="sp"></span><div class="seg" id="vsel"></div></header>
+  <a class="home" href="https://claude.ai/artifact/VPcGtD3mgToHgaTp12kqsM">‹ Về app Easy Chinese</a>
+  <header class="top"><img class="logo" src="logo.png" alt="Logo Easy Chinese" style="border-radius:12px;background:#fff"><div><h1>Easy Chinese</h1><small>Luyện nói · HSK4 Quyển 1</small></div><span class="sp"></span><div class="seg" id="vsel"></div></header>
   <div class="row"><div class="seg" id="modes"></div><select id="lsel" aria-label="Chọn bài"></select></div>
   <main id="main"></main>
 </div>
@@ -403,6 +406,149 @@ const DLG={
 9:[['A','昨天坐出租车，我跟司机聊了一路。','Hôm qua đi taxi, tôi nói chuyện với tài xế suốt đường.'],['B','你不怕跟陌生人说话吗？','Bạn không ngại nói chuyện với người lạ à?'],['A','不怕，司机很友好，还纠正了我的发音。','Không ngại, tài xế rất thân thiện, còn sửa phát âm cho tôi.'],['B','怪不得你的汉语说得越来越流利了。','Thảo nào tiếng Trung của bạn ngày càng lưu loát.'],['A','我们还找到了共同话题，他也喜欢京剧。','Chúng tôi còn tìm được chủ đề chung, ông ấy cũng thích kinh kịch.'],['B','看来你的收获不小啊！','Xem ra bạn thu hoạch được không ít đâu!']],
 10:[['A','你最近忙什么呢？好久没见你了。','Dạo này bạn bận gì thế? Lâu lắm không gặp.'],['B','一直在写论文，每天睡得很晚，感觉自己都变老了。','Toàn viết luận văn, ngày nào cũng ngủ muộn, thấy mình già đi rồi.'],['A','你才二十五岁，老什么老！','Bạn mới 25 tuổi, già gì mà già!'],['B','可是你看，你比我睡得早，精神也比我好。','Nhưng bạn xem, bạn ngủ sớm hơn tôi, tinh thần cũng tốt hơn tôi.'],['A','年龄不重要，心态好最重要。','Tuổi tác không quan trọng, tâm thái tốt mới quan trọng nhất.'],['B','你说得对，至少周末我要好好休息。','Bạn nói đúng, ít nhất cuối tuần tôi phải nghỉ ngơi cho tử tế.']]
 };
+
+/* ---------- WORK: extra content outside the textbook (office, procurement, steel, refractories). Same fields as RAW; lesson key is w1..w5 ---------- */
+const WTOP={w1:['办公室与同事','Văn phòng & đồng nghiệp'],w2:['会议·报告·邮件','Họp, báo cáo, email'],w3:['采购与供应商','Mua hàng & nhà cung cấp'],w4:['钢铁生产','Sản xuất gang thép'],w5:['耐火材料与验收','Vật liệu chịu lửa & nghiệm thu']};
+const WRAW=`w1|同事|tóngshì|N|đồng nghiệp|colleague|新同事 / 老同事|我的同事都很好相处。|Đồng nghiệp của tôi đều rất dễ gần.
+w1|领导|lǐngdǎo|N|lãnh đạo, sếp|leader, boss|请示领导|这件事我要先请示领导。|Việc này tôi phải xin ý kiến lãnh đạo trước.
+w1|部门|bùmén|N|phòng ban, bộ phận|department|采购部门 / 生产部门|你在哪个部门工作？|Bạn làm ở phòng ban nào?
+w1|经理|jīnglǐ|N|giám đốc, trưởng phòng|manager|采购经理|我们经理今天出差了。|Hôm nay trưởng phòng chúng tôi đi công tác.
+w1|主管|zhǔguǎn|N|người phụ trách, giám sát|supervisor|部门主管|他是我们组的主管。|Anh ấy là người phụ trách nhóm chúng tôi.
+w1|上班|shàng bān|VO|đi làm|to go to work||我每天早上八点上班。|Mỗi sáng tôi đi làm lúc tám giờ.
+w1|下班|xià bān|VO|tan làm|to get off work||今天你几点下班？|Hôm nay mấy giờ bạn tan làm?
+w1|加班|jiā bān|VO|tăng ca, làm thêm giờ|to work overtime||这个月我们经常加班。|Tháng này chúng tôi thường xuyên tăng ca.
+w1|请假|qǐng jià|VO|xin nghỉ phép|to ask for leave|请一天假|我明天想请一天假。|Ngày mai tôi muốn xin nghỉ một ngày.
+w1|出差|chū chāi|VO|đi công tác|to go on a business trip||下周我要去中国出差。|Tuần sau tôi phải đi công tác Trung Quốc.
+w1|开会|kāi huì|VO|họp|to have a meeting||下午两点在会议室开会。|Hai giờ chiều họp ở phòng họp.
+w1|打卡|dǎ kǎ|VO|chấm công|to clock in/out||上班别忘了打卡。|Đi làm đừng quên chấm công.
+w1|工资|gōngzī|N|tiền lương|salary||公司每月十号发工资。|Công ty trả lương vào ngày mười hằng tháng.
+w1|奖金|jiǎngjīn|N|tiền thưởng|bonus|年终奖金|年底公司会发奖金。|Cuối năm công ty sẽ phát thưởng.
+w1|任务|rènwu|N|nhiệm vụ|task|完成任务|这个任务周五以前要完成。|Nhiệm vụ này phải hoàn thành trước thứ Sáu.
+w1|负责|fùzé|V|phụ trách, chịu trách nhiệm|to be in charge of|负责采购|这个项目由我负责。|Dự án này do tôi phụ trách.
+w1|汇报|huìbào|V|báo cáo (lên cấp trên)|to report|汇报工作|我向经理汇报了工作进度。|Tôi đã báo cáo tiến độ công việc với trưởng phòng.
+w1|配合|pèihé|V|phối hợp|to cooperate|互相配合|请各部门配合一下。|Đề nghị các phòng ban phối hợp.
+w1|沟通|gōutōng|V|trao đổi, giao tiếp|to communicate|及时沟通|有问题我们随时沟通。|Có vấn đề gì chúng ta trao đổi bất cứ lúc nào.
+w1|麻烦|máfan|V&A|làm phiền; phiền phức|to trouble; troublesome|麻烦你|麻烦你帮我看一下这份文件。|Phiền bạn xem giúp tôi tài liệu này.
+w1|文件|wénjiàn|N|tài liệu, văn bản|document, file|一份文件|请把文件发到我的邮箱。|Hãy gửi tài liệu vào email của tôi.
+w1|签字|qiān zì|VO|ký tên|to sign||这份合同需要经理签字。|Hợp đồng này cần trưởng phòng ký.
+w1|盖章|gài zhāng|VO|đóng dấu|to stamp, to seal||盖章以后合同才有效。|Đóng dấu xong hợp đồng mới có hiệu lực.
+w1|辛苦|xīnkǔ|A|vất vả|hard, toilsome|辛苦了|大家这几天辛苦了！|Mấy hôm nay mọi người vất vả rồi!
+w1|效率|xiàolǜ|N|hiệu suất, năng suất|efficiency|工作效率|我们要提高工作效率。|Chúng ta phải nâng cao hiệu suất làm việc.
+w2|会议|huìyì|N|cuộc họp, hội nghị|meeting|开会议 / 视频会议|会议推迟到明天上午。|Cuộc họp lùi sang sáng mai.
+w2|会议室|huìyìshì|N|phòng họp|meeting room||会议室在三楼。|Phòng họp ở tầng ba.
+w2|议程|yìchéng|N|chương trình họp|agenda||这是今天会议的议程。|Đây là chương trình cuộc họp hôm nay.
+w2|讨论|tǎolùn|V|thảo luận|to discuss||我们讨论一下这个问题。|Chúng ta thảo luận vấn đề này một chút.
+w2|方案|fāng'àn|N|phương án|plan, proposal|采购方案|请大家提出更好的方案。|Mời mọi người đưa ra phương án tốt hơn.
+w2|决定|juédìng|V&N|quyết định|to decide; decision|做决定|这件事由领导决定。|Việc này do lãnh đạo quyết định.
+w2|通知|tōngzhī|V&N|thông báo|to notify; notice|发通知|请通知供应商明天来开会。|Hãy thông báo nhà cung cấp mai đến họp.
+w2|报告|bàogào|N&V|báo cáo|report; to report|月度报告|我在写这个月的采购报告。|Tôi đang viết báo cáo mua hàng tháng này.
+w2|数据|shùjù|N|số liệu, dữ liệu|data||这些数据需要再核对一下。|Những số liệu này cần đối chiếu lại.
+w2|核对|héduì|V|đối chiếu, kiểm tra lại|to check, to verify|核对数量|请核对一下发票上的金额。|Hãy đối chiếu lại số tiền trên hóa đơn.
+w2|总结|zǒngjié|V&N|tổng kết|to sum up; summary|年终总结|下周要交年终总结。|Tuần sau phải nộp báo cáo tổng kết cuối năm.
+w2|进度|jìndù|N|tiến độ|progress|项目进度|项目进度怎么样了？|Tiến độ dự án thế nào rồi?
+w2|截止日期|jiézhǐ rìqī|N|hạn chót|deadline||投标的截止日期是本月底。|Hạn chót dự thầu là cuối tháng này.
+w2|邮件|yóujiàn|N|email, thư|email|发邮件|我刚给您发了一封邮件。|Tôi vừa gửi cho anh/chị một email.
+w2|附件|fùjiàn|N|tệp đính kèm|attachment||详细资料请看附件。|Tài liệu chi tiết xin xem file đính kèm.
+w2|抄送|chāosòng|V|gửi đồng thời (CC)|to CC|抄送经理|这封邮件请抄送给经理。|Email này hãy CC cho trưởng phòng.
+w2|回复|huífù|V|trả lời, phản hồi|to reply|尽快回复|收到邮件请尽快回复。|Nhận được email xin phản hồi sớm.
+w2|确认|quèrèn|V|xác nhận|to confirm|确认订单|请确认一下交货时间。|Hãy xác nhận thời gian giao hàng.
+w2|推迟|tuīchí|V|hoãn, lùi lại|to postpone||因为下雨，交货推迟了两天。|Vì trời mưa, việc giao hàng bị lùi hai ngày.
+w2|提前|tíqián|V|trước, sớm hơn|to bring forward|提前完成|我们提前三天完成了任务。|Chúng tôi hoàn thành nhiệm vụ sớm ba ngày.
+w2|建议|jiànyì|N&V|đề xuất, kiến nghị|suggestion; to suggest|提建议|我建议换一家供应商。|Tôi đề xuất đổi nhà cung cấp khác.
+w2|意见|yìjiàn|N|ý kiến|opinion|提意见|大家还有什么意见？|Mọi người còn ý kiến gì không?
+w2|流程|liúchéng|N|quy trình|process|采购流程|新员工要先了解采购流程。|Nhân viên mới phải tìm hiểu quy trình mua hàng trước.
+w2|审批|shěnpī|V|phê duyệt|to approve|审批流程|这份申请还在审批中。|Đơn đề nghị này vẫn đang chờ phê duyệt.
+w3|采购|cǎigòu|V&N|mua hàng, thu mua|to purchase; procurement|采购部 / 采购员|我在公司的采购部工作。|Tôi làm ở phòng mua hàng của công ty.
+w3|供应商|gōngyìngshāng|N|nhà cung cấp|supplier|合格供应商|我们要再找几家供应商。|Chúng tôi cần tìm thêm vài nhà cung cấp.
+w3|询价|xún jià|VO|hỏi giá|to make an inquiry||我们向五家供应商询价了。|Chúng tôi đã hỏi giá năm nhà cung cấp.
+w3|报价|bàojià|N&V|báo giá|quotation; to quote|报价单|请您尽快报价。|Xin anh/chị báo giá sớm.
+w3|比价|bǐ jià|VO|so sánh giá|to compare prices||比价以后我们再决定。|So sánh giá xong chúng tôi sẽ quyết định.
+w3|招标|zhāo biāo|VO|mời thầu|to invite bids|公开招标|这个项目要公开招标。|Dự án này phải đấu thầu công khai.
+w3|投标|tóu biāo|VO|dự thầu|to bid||已经有六家公司投标了。|Đã có sáu công ty dự thầu.
+w3|中标|zhòng biāo|VO|trúng thầu|to win a bid||恭喜你们中标了！|Chúc mừng các bạn đã trúng thầu!
+w3|谈判|tánpàn|V&N|đàm phán|to negotiate||价格还需要再谈判。|Giá cả vẫn cần đàm phán thêm.
+w3|优惠|yōuhuì|A&N|ưu đãi|favorable; discount|优惠价格|能不能再优惠一点？|Có thể ưu đãi thêm chút không?
+w3|折扣|zhékòu|N|chiết khấu|discount|打折扣|订得多可以给折扣吗？|Đặt nhiều có được chiết khấu không?
+w3|单价|dānjià|N|đơn giá|unit price||这个单价比去年高了。|Đơn giá này cao hơn năm ngoái.
+w3|总价|zǒngjià|N|tổng giá|total price||总价包括运费吗？|Tổng giá có bao gồm cước vận chuyển không?
+w3|数量|shùliàng|N|số lượng|quantity||订单数量是两百吨。|Số lượng đơn hàng là hai trăm tấn.
+w3|合同|hétong|N|hợp đồng|contract|签合同|合同已经签好了。|Hợp đồng đã ký xong.
+w3|订单|dìngdān|N|đơn hàng|order|下订单|我们下了一个大订单。|Chúng tôi đã đặt một đơn hàng lớn.
+w3|交货期|jiāohuòqī|N|thời hạn giao hàng|delivery time||交货期是多长时间？|Thời hạn giao hàng là bao lâu?
+w3|到货|dào huò|VO|hàng về, hàng đến|goods arrive||这批货下周三到货。|Lô hàng này thứ Tư tuần sau về.
+w3|付款|fù kuǎn|VO|thanh toán|to pay|付款方式|付款方式是银行转账。|Phương thức thanh toán là chuyển khoản ngân hàng.
+w3|预付款|yùfùkuǎn|N|tiền tạm ứng, trả trước|advance payment||合同签订后支付百分之三十预付款。|Sau khi ký hợp đồng trả trước 30%.
+w3|发票|fāpiào|N|hóa đơn|invoice|开发票|请给我们开发票。|Hãy xuất hóa đơn cho chúng tôi.
+w3|增值税|zēngzhíshuì|N|thuế giá trị gia tăng|VAT||这个价格含增值税吗？|Giá này đã bao gồm thuế GTGT chưa?
+w3|保函|bǎohán|N|thư bảo lãnh|letter of guarantee|银行保函|请提供银行保函。|Xin cung cấp thư bảo lãnh ngân hàng.
+w3|质保期|zhìbǎoqī|N|thời hạn bảo hành|warranty period||质保期是十二个月。|Thời hạn bảo hành là mười hai tháng.
+w3|索赔|suǒpéi|V|đòi bồi thường|to claim compensation||产品不合格，我们要求索赔。|Sản phẩm không đạt, chúng tôi yêu cầu bồi thường.
+w3|运费|yùnfèi|N|cước vận chuyển|freight||运费由供应商承担。|Cước vận chuyển do nhà cung cấp chịu.
+w3|进口|jìnkǒu|V|nhập khẩu|to import|进口设备|这些备件需要从中国进口。|Các phụ tùng này cần nhập khẩu từ Trung Quốc.
+w4|钢铁|gāngtiě|N|gang thép|iron and steel|钢铁公司|我在一家钢铁公司工作。|Tôi làm việc ở một công ty gang thép.
+w4|炼铁|liàn tiě|VO|luyện gang|ironmaking|炼铁厂|炼铁厂在工厂的东边。|Nhà máy luyện gang ở phía đông khu nhà máy.
+w4|炼钢|liàn gāng|VO|luyện thép|steelmaking|炼钢厂|炼钢厂今天产量很高。|Hôm nay nhà máy luyện thép sản lượng rất cao.
+w4|高炉|gāolú|N|lò cao|blast furnace||高炉每天生产几千吨铁水。|Lò cao mỗi ngày sản xuất vài nghìn tấn gang lỏng.
+w4|转炉|zhuǎnlú|N|lò chuyển (BOF)|converter (BOF)||转炉把铁水炼成钢水。|Lò chuyển luyện gang lỏng thành thép lỏng.
+w4|电炉|diànlú|N|lò điện (EAF)|electric arc furnace||电炉主要用废钢炼钢。|Lò điện chủ yếu dùng thép phế để luyện thép.
+w4|铁矿石|tiěkuàngshí|N|quặng sắt|iron ore||最近铁矿石的价格又涨了。|Gần đây giá quặng sắt lại tăng.
+w4|焦炭|jiāotàn|N|than cốc|coke||高炉炼铁需要大量焦炭。|Luyện gang lò cao cần lượng lớn than cốc.
+w4|烧结|shāojié|V&N|thiêu kết|sintering|烧结矿|烧结车间正在检修。|Phân xưởng thiêu kết đang bảo dưỡng.
+w4|铁水|tiěshuǐ|N|gang lỏng|hot metal||铁水温度大约一千五百度。|Nhiệt độ gang lỏng khoảng 1500 độ.
+w4|钢水|gāngshuǐ|N|thép lỏng|molten steel||钢水倒进钢包里。|Thép lỏng được rót vào thùng chứa.
+w4|钢包|gāngbāo|N|thùng rót thép (ladle)|ladle||钢包里面要砌耐火砖。|Bên trong thùng rót thép phải xây gạch chịu lửa.
+w4|中间包|zhōngjiānbāo|N|thùng trung gian (tundish)|tundish||中间包的寿命比较短。|Tuổi thọ thùng trung gian khá ngắn.
+w4|连铸|liánzhù|V&N|đúc liên tục|continuous casting|连铸机|钢水经过连铸做成钢坯。|Thép lỏng qua đúc liên tục thành phôi thép.
+w4|钢坯|gāngpī|N|phôi thép|billet, slab||钢坯送到轧钢厂。|Phôi thép được đưa tới nhà máy cán.
+w4|轧钢|zhá gāng|VO|cán thép|steel rolling|轧钢厂|轧钢厂主要生产热轧卷板。|Nhà máy cán chủ yếu sản xuất thép cuộn cán nóng.
+w4|热轧卷板|rèzhá juǎnbǎn|N|thép cuộn cán nóng (HRC)|hot-rolled coil||这个月热轧卷板卖得很好。|Tháng này thép cuộn cán nóng bán rất chạy.
+w4|钢筋|gāngjīn|N|thép thanh xây dựng|rebar||钢筋主要用于建筑。|Thép thanh chủ yếu dùng trong xây dựng.
+w4|线材|xiàncái|N|thép dây cuộn|wire rod||线材的订单比上个月多。|Đơn hàng thép dây nhiều hơn tháng trước.
+w4|废钢|fèigāng|N|thép phế liệu|steel scrap||废钢价格下降了一点。|Giá thép phế giảm một chút.
+w4|产量|chǎnliàng|N|sản lượng|output||今年的产量比去年增长了百分之十。|Sản lượng năm nay tăng 10% so với năm ngoái.
+w4|设备|shèbèi|N|thiết bị|equipment||这台设备是从德国进口的。|Thiết bị này nhập khẩu từ Đức.
+w4|检修|jiǎnxiū|V&N|bảo dưỡng, đại tu|overhaul, maintenance|停炉检修|高炉下个月要停产检修。|Tháng sau lò cao phải dừng sản xuất để đại tu.
+w4|故障|gùzhàng|N|sự cố, hỏng hóc|breakdown, fault|设备故障|设备出了故障，正在抢修。|Thiết bị gặp sự cố, đang sửa gấp.
+w4|车间|chējiān|N|phân xưởng|workshop||我们去炼钢车间看看。|Chúng ta đi xem phân xưởng luyện thép.
+w4|安全帽|ānquánmào|N|mũ bảo hộ|safety helmet||进车间一定要戴安全帽。|Vào phân xưởng nhất định phải đội mũ bảo hộ.
+w5|耐火材料|nàihuǒ cáiliào|N|vật liệu chịu lửa|refractory material||钢厂每年要用很多耐火材料。|Nhà máy thép mỗi năm dùng rất nhiều vật liệu chịu lửa.
+w5|耐火砖|nàihuǒzhuān|N|gạch chịu lửa|refractory brick||这批耐火砖已经到货了。|Lô gạch chịu lửa này đã về rồi.
+w5|浇注料|jiāozhùliào|N|vật liệu đúc (castable)|castable||浇注料要在保质期内使用。|Vật liệu đúc phải dùng trong hạn sử dụng.
+w5|镁碳砖|měitànzhuān|N|gạch magie-carbon|magnesia-carbon brick||转炉炉衬用镁碳砖。|Lớp lót lò chuyển dùng gạch magie-carbon.
+w5|高铝砖|gāolǚzhuān|N|gạch cao nhôm|high-alumina brick||高铝砖的氧化铝含量很高。|Gạch cao nhôm có hàm lượng ôxít nhôm rất cao.
+w5|喷涂料|pēntúliào|N|vật liệu phun|gunning mix||中间包内衬使用喷涂料。|Lớp lót trong thùng trung gian dùng vật liệu phun.
+w5|炉衬|lúchèn|N|lớp lót lò|furnace lining||炉衬寿命比上次长了。|Tuổi thọ lớp lót lò dài hơn lần trước.
+w5|寿命|shòumìng|N|tuổi thọ|service life|使用寿命|这种砖的使用寿命是多少炉？|Loại gạch này dùng được bao nhiêu mẻ?
+w5|侵蚀|qīnshí|V&N|ăn mòn, xâm thực|to erode; erosion||渣线部位侵蚀得很严重。|Vùng đường xỉ bị ăn mòn rất nghiêm trọng.
+w5|理化指标|lǐhuà zhǐbiāo|N|chỉ tiêu lý hóa|physicochemical indexes||理化指标必须符合技术要求。|Chỉ tiêu lý hóa phải phù hợp yêu cầu kỹ thuật.
+w5|技术要求|jìshù yāoqiú|N|yêu cầu kỹ thuật|technical requirements||请按照技术要求生产。|Hãy sản xuất theo yêu cầu kỹ thuật.
+w5|规格|guīgé|N|quy cách|specification||这种砖有三种规格。|Loại gạch này có ba quy cách.
+w5|型号|xínghào|N|mã hiệu, model|model, type||请确认一下产品型号。|Hãy xác nhận lại mã hiệu sản phẩm.
+w5|样品|yàngpǐn|N|hàng mẫu|sample|寄样品|请先寄一些样品过来。|Xin gửi trước một ít hàng mẫu.
+w5|检验|jiǎnyàn|V&N|kiểm nghiệm, kiểm tra|to inspect; inspection|检验报告|每批货都要做检验。|Lô hàng nào cũng phải kiểm nghiệm.
+w5|验收|yànshōu|V|nghiệm thu|to check and accept||验收的时候需要双方签字。|Khi nghiệm thu cần hai bên ký.
+w5|合格|hégé|A|đạt yêu cầu|qualified|检验合格|样品检验合格了。|Hàng mẫu đã kiểm nghiệm đạt yêu cầu.
+w5|施工|shīgōng|V&N|thi công|construction||施工单位明天进场。|Đơn vị thi công ngày mai vào công trường.
+w5|砌筑|qìzhù|V|xây (gạch)|to lay bricks||砌筑钢包需要两天时间。|Xây gạch thùng rót thép mất hai ngày.
+w5|吨|dūn|M|tấn|ton||这次一共采购三百吨。|Lần này mua tổng cộng ba trăm tấn.
+w5|包装|bāozhuāng|N|bao bì, đóng gói|packaging||包装破了，砖受潮了。|Bao bì bị rách, gạch bị ẩm.
+w5|批次|pīcì|N|lô (hàng)|batch||请注明每个批次的生产日期。|Hãy ghi rõ ngày sản xuất của từng lô.
+w5|退货|tuì huò|VO|trả hàng|to return goods||不合格的产品我们要退货。|Sản phẩm không đạt chúng tôi sẽ trả lại.
+w5|质量问题|zhìliàng wèntí|N|vấn đề chất lượng|quality issue||这批浇注料有质量问题。|Lô vật liệu đúc này có vấn đề chất lượng.`;
+const WORK=WRAW.split('\n').map(l=>{const f=l.split('|');return{l:f[0],hz:f[1],py:f[2],pos:f[3],vi:f[4],en:f[5],col:f[6],ex:f[7],exvi:f[8]}});
+const WPHR={
+w1:[['请问您贵姓？','Xin hỏi anh/chị họ gì?'],['不好意思，打扰一下。','Xin lỗi, làm phiền một chút.'],['这件事我马上处理。','Việc này tôi xử lý ngay.'],['我确认一下再回复您。','Tôi xác nhận lại rồi trả lời anh/chị.'],['麻烦您尽快回复。','Phiền anh/chị phản hồi sớm.'],['有什么问题随时联系我。','Có vấn đề gì cứ liên hệ tôi bất cứ lúc nào.'],['我今天身体不舒服，想请半天假。','Hôm nay tôi không khỏe, muốn xin nghỉ nửa ngày.'],['谢谢您的配合！','Cảm ơn sự phối hợp của anh/chị!']],
+w2:[['今天的会议主要讨论三个问题。','Cuộc họp hôm nay chủ yếu thảo luận ba vấn đề.'],['我先简单汇报一下这个月的工作。','Tôi xin báo cáo ngắn gọn công việc tháng này.'],['关于这个问题，我有一点建议。','Về vấn đề này, tôi có một đề xuất.'],['您的意思是要提前交货，对吗？','Ý anh/chị là muốn giao hàng sớm hơn, đúng không?'],['附件是本月的采购报告，请查收。','File đính kèm là báo cáo mua hàng tháng này, xin vui lòng kiểm tra.'],['如有问题，请随时联系。','Nếu có vấn đề, xin liên hệ bất cứ lúc nào.'],['请在周五以前回复确认。','Vui lòng phản hồi xác nhận trước thứ Sáu.'],['会议就到这里，谢谢大家。','Cuộc họp đến đây, cảm ơn mọi người.']],
+w3:[['请问这个产品的单价是多少？','Xin hỏi đơn giá sản phẩm này là bao nhiêu?'],['请把报价单发到我的邮箱。','Hãy gửi bảng báo giá vào email của tôi.'],['你们的价格比别的供应商高一点。','Giá của các bạn cao hơn nhà cung cấp khác một chút.'],['如果数量多，能给我们多少折扣？','Nếu số lượng nhiều, có thể chiết khấu cho chúng tôi bao nhiêu?'],['交货期最快能做到多少天？','Thời hạn giao hàng nhanh nhất là bao nhiêu ngày?'],['到货验收合格后三十天付款。','Thanh toán 30 ngày sau khi hàng về và nghiệm thu đạt.'],['请提供质保期和银行保函。','Xin cung cấp thời hạn bảo hành và thư bảo lãnh ngân hàng.'],['合同我们已经确认，请盖章后寄回。','Hợp đồng chúng tôi đã xác nhận, xin đóng dấu rồi gửi lại.']],
+w4:[['我们公司是一家大型钢铁联合企业。','Công ty chúng tôi là một khu liên hợp gang thép lớn.'],['高炉下个月计划停产检修十天。','Tháng sau lò cao dự kiến dừng sản xuất để đại tu mười ngày.'],['这个车间主要生产热轧卷板。','Phân xưởng này chủ yếu sản xuất thép cuộn cán nóng.'],['进车间一定要戴安全帽。','Vào phân xưởng nhất định phải đội mũ bảo hộ.'],['今年的产量目标是五百万吨。','Mục tiêu sản lượng năm nay là năm triệu tấn.'],['设备出了故障，正在抢修。','Thiết bị gặp sự cố, đang sửa gấp.'],['欢迎各位来我们工厂参观。','Chào mừng mọi người đến tham quan nhà máy chúng tôi.'],['安全第一，大家一定要注意。','An toàn là trên hết, mọi người nhất định phải chú ý.']],
+w5:[['请提供这批耐火砖的检验报告。','Xin cung cấp báo cáo kiểm nghiệm của lô gạch chịu lửa này.'],['理化指标必须符合技术要求。','Chỉ tiêu lý hóa phải phù hợp yêu cầu kỹ thuật.'],['样品检验合格以后我们才能下订单。','Hàng mẫu kiểm nghiệm đạt rồi chúng tôi mới đặt hàng.'],['这批浇注料有质量问题，我们要求退货。','Lô vật liệu đúc này có vấn đề chất lượng, chúng tôi yêu cầu trả hàng.'],['施工以前请把包装检查一遍。','Trước khi thi công hãy kiểm tra bao bì một lượt.'],['验收的时候需要双方签字。','Khi nghiệm thu cần hai bên ký.'],['炉衬寿命比上次短了，请分析原因。','Tuổi thọ lớp lót lò ngắn hơn lần trước, xin phân tích nguyên nhân.'],['请注明每个批次的生产日期。','Hãy ghi rõ ngày sản xuất của từng lô.']]};
+const WDLG={
+w1:[['A','经理，您现在有空吗？','Sếp ơi, bây giờ anh có rảnh không ạ?'],['B','有，什么事？','Có, chuyện gì vậy?'],['A','我明天上午想请半天假，去医院检查一下。','Sáng mai em muốn xin nghỉ nửa ngày để đi bệnh viện kiểm tra.'],['B','可以。你手上的任务安排好了吗？','Được. Công việc trong tay em sắp xếp xong chưa?'],['A','安排好了，报价单我今天下班以前发给您。','Xong rồi ạ, bảng báo giá em gửi anh trước giờ tan làm hôm nay.'],['B','好，有急事就打我电话。','Được, có việc gấp thì gọi cho anh.'],['A','谢谢经理！','Cảm ơn sếp!']],
+w2:[['A','我先汇报一下采购进度。耐火砖已经到货了。','Tôi báo cáo trước tiến độ mua hàng. Gạch chịu lửa đã về rồi.'],['B','检验做了吗？','Đã kiểm nghiệm chưa?'],['A','做了，理化指标都合格，检验报告在附件里。','Rồi ạ, chỉ tiêu lý hóa đều đạt, báo cáo kiểm nghiệm ở file đính kèm.'],['B','很好。浇注料呢？','Tốt lắm. Còn vật liệu đúc thì sao?'],['A','供应商说要推迟一周交货，我正在跟他们沟通。','Nhà cung cấp nói phải lùi giao hàng một tuần, tôi đang trao đổi với họ.'],['B','不行，这会影响检修计划。你今天就催一下，下午给我回复。','Không được, việc này ảnh hưởng kế hoạch đại tu. Hôm nay anh giục họ đi, chiều trả lời tôi.'],['A','好的，我马上联系他们。','Vâng, tôi liên hệ họ ngay.']],
+w3:[['A','王经理，你们的报价我们收到了，但是单价有点高。','Giám đốc Vương, chúng tôi đã nhận báo giá, nhưng đơn giá hơi cao.'],['B','这已经是我们最优惠的价格了。','Đây đã là giá ưu đãi nhất của chúng tôi rồi.'],['A','别的供应商比你们便宜百分之五。如果能降一点，我们可以多订一些。','Nhà cung cấp khác rẻ hơn các anh 5%. Nếu giảm được chút, chúng tôi có thể đặt nhiều hơn.'],['B','你们大概要多少吨？','Các anh cần khoảng bao nhiêu tấn?'],['A','第一批两百吨，以后每个季度都有订单。','Lô đầu hai trăm tấn, sau này quý nào cũng có đơn.'],['B','那我跟领导商量一下，最多能给你们百分之三的折扣。','Vậy tôi bàn với lãnh đạo, tối đa chiết khấu cho các anh 3%.'],['A','好，另外交货期能不能提前到二十天？','Được, ngoài ra thời hạn giao hàng có thể rút xuống hai mươi ngày không?'],['B','没问题，我们尽量安排。','Không vấn đề, chúng tôi sẽ cố gắng sắp xếp.']],
+w4:[['A','欢迎来我们工厂参观！这是炼钢车间。','Chào mừng đến tham quan nhà máy! Đây là phân xưởng luyện thép.'],['B','这里有几座转炉？','Ở đây có mấy lò chuyển?'],['A','一共三座转炉，钢水送到连铸机做成钢坯。','Tổng cộng ba lò chuyển, thép lỏng đưa tới máy đúc liên tục làm thành phôi thép.'],['B','钢坯以后再送到轧钢厂吗？','Sau đó phôi thép lại đưa tới nhà máy cán à?'],['A','对，主要轧成热轧卷板和钢筋。','Đúng, chủ yếu cán thành thép cuộn cán nóng và thép thanh.'],['B','你们一年的产量是多少？','Sản lượng một năm của các anh là bao nhiêu?'],['A','大概五百万吨。请大家戴好安全帽，跟我来。','Khoảng năm triệu tấn. Mời mọi người đội mũ bảo hộ và đi theo tôi.']],
+w5:[['A','李工，上周到的那批镁碳砖有问题。','Kỹ sư Lý, lô gạch magie-carbon về tuần trước có vấn đề.'],['B','什么问题？','Vấn đề gì vậy?'],['A','抽检结果显示，有几个理化指标不合格。','Kết quả kiểm tra xác suất cho thấy vài chỉ tiêu lý hóa không đạt.'],['B','不会吧？出厂的时候我们都检验过。','Không thể nào? Lúc xuất xưởng chúng tôi đều kiểm nghiệm rồi.'],['A','检验报告我已经发给您了，请您看一下。','Báo cáo kiểm nghiệm tôi đã gửi anh rồi, mời anh xem.'],['B','好，我们马上派技术人员过去，一起复检。','Được, chúng tôi cử kỹ thuật viên sang ngay để cùng kiểm tra lại.'],['A','如果复检还是不合格，这个批次要全部退货。','Nếu kiểm tra lại vẫn không đạt, cả lô này phải trả lại.'],['B','明白，我们一定负责到底。','Hiểu rồi, chúng tôi nhất định chịu trách nhiệm đến cùng.']]};
+Object.assign(DLG,WDLG);
 
 
 
